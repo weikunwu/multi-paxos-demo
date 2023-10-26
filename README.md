@@ -10,7 +10,7 @@ npm install
 ```
 After installation is complete run
 ```
-npm build
+npm run build
 ```
 
 ### Web host
