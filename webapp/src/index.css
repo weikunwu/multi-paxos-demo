@@ -1,4 +1,25 @@
 .app {
   display: flex;
-  justify-content:center;
+  justify-content: center;
+}
+
+.paxos-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.paxos-setting-container {
+  width: 25%;
+}
+
+.slider-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .slider {
+    width: 100%;
+    margin-left: 15px;
+    margin-right: 15px;
+  }
 }
