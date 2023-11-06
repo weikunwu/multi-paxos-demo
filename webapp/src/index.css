@@ -6,6 +6,23 @@
 .paxos-container {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.paxos-display-container {
+  /* height: 100%; */
+  width: 100%;
+  display: flex;
+  justify-content:center;
+  align-items: center;
+
+  .server-grid-container {
+    width: 500px;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    position:relative;
+  }
 }
 
 .paxos-setting-container {

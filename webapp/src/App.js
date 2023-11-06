@@ -5,7 +5,7 @@ import {
   Typography,
 } from 'antd';
 
-import Paxos from './containers/Paxos';
+import Paxos from './components/Paxos';
 
 const { Title } = Typography;
 

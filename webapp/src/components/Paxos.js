@@ -1,7 +1,7 @@
 import React from 'react';
 
-import PaxosDisplay from './PaxoDisplay';
-import PaxosSetting from './PaxosSetting';
+import PaxosDisplay from '../containers/PaxoDisplay';
+import PaxosSetting from '../containers/PaxosSetting';
 
 const Paxos = () => {
 
