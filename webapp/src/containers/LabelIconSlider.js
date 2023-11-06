@@ -5,7 +5,10 @@ import { Slider } from 'antd';
 const LabelIconSlider = ({
   leftIcon,
   rightIcon,
-  label
+  label,
+  min,
+  max,
+  handleChange,
 }) => {
 
   return (
@@ -13,7 +16,13 @@ const LabelIconSlider = ({
       <h4>{label}</h4>
       <div className='slider-container'>
         {leftIcon}
-        <Slider className='slider' />
+        <Slider
+          className='slider'
+          min={min}
+          max={max}
+          onChange={(value) => {
+            handleChange(value);
+          }} />
         {rightIcon}
       </div>
     </div>
