@@ -1,0 +1,4 @@
+const PACKET_SIZE = 30;
+const SERVER_SIZE = 50;
+
+export { PACKET_SIZE, SERVER_SIZE };

@@ -18,6 +18,20 @@ import LabelIconSlider from './LabelIconSlider';
 const PaxosSetting = ({ className }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
 
+  const handleStartButton = () => {
+    const cur = paxosState.on;
+    setPaxosState({
+      ...paxosState,
+      on: !cur
+    })
+  }
+
+  const handleSpeedChange = (speed) => {
+    setPaxosState({
+      ...paxosState,
+      speed: speed
+    })
+  }
   const handleAddServer = () => {
     const circleRadius = 200; // radius of the circle
     // const offset = circleContainer.offsetWidth / 2 - 10; // Center offset for the node
@@ -29,27 +43,39 @@ const PaxosSetting = ({ className }) => {
 
     newServers.forEach((server, i) => {
       const theta = angle * (i + 1); // new angle for all nodes
-      server.x = `${offset + circleRadius * Math.cos(theta) - 10}px`;
-      server.y = `${offset + circleRadius * Math.sin(theta) - 10}px`;
+      server.x = offset + circleRadius * Math.cos(theta) - 10;
+      server.y = offset + circleRadius * Math.sin(theta) - 10;
     })
+
     setPaxosState({
       ...paxosState,
-      servers: newServers
+      servers: newServers,
     })
   }
 
   return (
     <div className={`paxos-setting-container ${className}`} >
-      <Button className='start-button'>{paxosState.on ? 'Pause' : 'Start'}</Button>
-      <Button className='add-button' type='primary' disabled={paxosState.servers.length >= 10} onClick={handleAddServer}>Add Node</Button>
+      <Button
+        className='start-button'
+        onClick={handleStartButton}
+      >{paxosState.on ? 'Pause' : 'Start'}</Button>
+      <Button
+        className='add-button'
+        type='primary'
+        disabled={
+          paxosState.servers.length >= 10 || paxosState.on || paxosState.packets.length > 0
+        } onClick={handleAddServer}>Add Node</Button>
       <LabelIconSlider
         leftIcon={<GiTurtleShell />}
         rightIcon={<GiRabbit />}
         label='Speed'
+        min={1}
+        max={5}
+        handleChange={handleSpeedChange}
       />
       <LabelIconSlider
-        leftIcon={<AiOutlineClose />}
-        rightIcon={<AiOutlineCheck />}
+        leftIcon={<AiOutlineCheck />}
+        rightIcon={<AiOutlineClose />}
         label='Message Drop Rate'
       />
     </div>
