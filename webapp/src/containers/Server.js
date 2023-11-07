@@ -33,7 +33,7 @@ const Server = ({ className, server }) => {
         style={{
           left: `${server.x || 200}px`,
           top: `${server.y || 200}px`
-        }}>{server.name}</Button>
+        }}>{server.id}</Button>
     </div>
   )
 }

@@ -13,7 +13,7 @@ const PaxosDisplay = ({ className }) => {
     <div className={`paxos-display-container ${className}`}>
       <div className='server-circle-container'>
         {paxosState.servers.map((server) => {
-          return <Server key={server.name} server={server} />
+          return <Server key={server.id} server={server} />
         })}
         {paxosState.packets.map((packet) => {
           return <Packet key={packet.id} packet={packet} />
@@ -24,6 +24,8 @@ const PaxosDisplay = ({ className }) => {
 }
 
 export default styled(PaxosDisplay)`
+  display: flex;
+  justify-content: center;
   .server-circle-container {
     position: relative;
     width: 400px;
