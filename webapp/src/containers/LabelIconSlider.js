@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Slider } from 'antd';
+import styled from 'styled-components';
 
 const LabelIconSlider = ({
   leftIcon,
@@ -9,10 +10,11 @@ const LabelIconSlider = ({
   min,
   max,
   handleChange,
+  className
 }) => {
 
   return (
-    <div className='speed-slider-container'>
+    <div className={`labeled-slider-container ${className}`}>
       <h4>{label}</h4>
       <div className='slider-container'>
         {leftIcon}
@@ -29,4 +31,16 @@ const LabelIconSlider = ({
   )
 }
 
-export default LabelIconSlider;
+export default styled(LabelIconSlider)`
+  .slider-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .slider {
+      width: 100%;
+      margin-left: 15px;
+      margin-right: 15px;
+    }
+  }
+`;
