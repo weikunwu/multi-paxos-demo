@@ -10,7 +10,7 @@ const Server = ({ className, server }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
 
   const propose = () => {
-    const receivers = paxosState.servers.filter(s => s.name !== server.name);
+    const receivers = paxosState.servers.filter(s => s.id !== server.id);
     setPaxosState((prevState) => {
       const newPackets = [
         ...prevState.packets,
@@ -33,7 +33,7 @@ const Server = ({ className, server }) => {
         style={{
           left: `${server.x || 200}px`,
           top: `${server.y || 200}px`
-        }}>{server.name}</Button>
+        }}>{server.id}</Button>
     </div>
   )
 }
@@ -44,5 +44,6 @@ export default styled(Server)`
     width: ${SERVER_SIZE}px;
     height: ${SERVER_SIZE}px;
     border: 3px solid black;
+    z-index: 2;
   }
 `;
