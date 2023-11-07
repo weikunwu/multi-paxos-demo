@@ -62,7 +62,7 @@ const Packet = ({ className, packet, handlePacketArrive }) => {
 
 export default styled(Packet)`
   position: absolute;
-  z-index: -1;
+  z-index: 1;
   .packet {
     width: ${PACKET_SIZE}px;
     height: ${PACKET_SIZE}px;

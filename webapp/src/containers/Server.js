@@ -44,5 +44,6 @@ export default styled(Server)`
     width: ${SERVER_SIZE}px;
     height: ${SERVER_SIZE}px;
     border: 3px solid black;
+    z-index: 2;
   }
 `;

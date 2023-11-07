@@ -2,7 +2,9 @@ import { Packet } from './Packet';
 
 class Server {
   constructor(name) {
-    this.name = name;
+    this.name = name; // server name
+    this.x = null; // server x postion
+    this.y = null; // server y position
   }
 
   broadcastPropose(servers, value) {
