@@ -26,10 +26,20 @@ class Server {
     return packet;
   }
 
+  ackPrepare(packet) {
+    // TODO
+    return packet
+  }
+
+  ackAccept(packet) {
+    // TODO
+    return packet
+  }
+
   receivedPacket(packet) {
     const packetNum = packet.proposalNum;
     const packetValue = packet.value;
-    const respond = Packet(this, packet.from);
+    const respond = new Packet(this, packet.from);
     switch (packet.type) {
       case 'PREPARE':
         // No accepted value
@@ -38,13 +48,13 @@ class Server {
             // Update server min proposal num
             this.minProposal = packetNum;
             respond.proposalNum = packetNum;
-            //ackPrepare(respond);
+            this.ackPrepare(respond);
           } else { } // Ignore prepare request
         } else {
           // Have accepted value
           respond.proposalNum = this.acceptedProp;
           respond.value = this.acceptedValue;
-          //ackPrepare(respond);
+          this.ackPrepare(respond);
         }
         break;
       case 'ACCEPT':
