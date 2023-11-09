@@ -32,6 +32,7 @@ const PaxosSetting = ({ className }) => {
       speed: speed
     })
   }
+
   const handleAddServer = () => {
     const circleRadius = 200; // radius of the circle
     const offset = 200; // Center offset for the node
@@ -61,11 +62,17 @@ const PaxosSetting = ({ className }) => {
     });
   };
   
-
   // Add a function to handle role selection changes
   const handleRoleChange = (e) => {
     setSelectedRole(e.target.value);
   };
+
+  const handleMessageDropRateChange = (dropRate) => {
+    setPaxosState({
+      ...paxosState,
+      messageDropRate: dropRate
+    });
+  }
 
   return (
     <div className={`paxos-setting-container ${className}`} >
@@ -73,12 +80,6 @@ const PaxosSetting = ({ className }) => {
         className='start-button'
         onClick={handleStartButton}
       >{paxosState.on ? 'Pause' : 'Start'}</Button>
-      {/* Add radio buttons for role selection */}
-      <Radio.Group onChange={handleRoleChange} value={selectedRole} style={{ marginBottom: '10px' }}>
-        <Radio value="proposer">Proposer</Radio>
-        <Radio value="acceptor">Acceptor</Radio>
-        <Radio value="both">Both</Radio>
-      </Radio.Group>
       <Button
         className='add-button'
         type='primary'
@@ -97,6 +98,11 @@ const PaxosSetting = ({ className }) => {
         leftIcon={<AiOutlineCheck />}
         rightIcon={<AiOutlineClose />}
         label='Message Drop Rate'
+        min={0}
+        max={1}
+        step={0.1} // Assuming the drop rate is between 0 (no drops) and 1 (all dropped), with a step of 0.1
+        value={paxosState.messageDropRate}
+        handleChange={handleMessageDropRateChange}
       />
     </div>
   )
