@@ -12,7 +12,7 @@ class Server {
   }
 
   // Step 1: Choose new proposal number and create packet
-  prepare(server, id, proposalNum) {
+  prepare(server, id, proposalNum) {this.broadcastPrepare
     const packet = new Packet(this, server)
     packet.id = id;
     packet.type = "PREPARE";
@@ -43,35 +43,35 @@ class Server {
     // If packet.proposalNum < this.minProposal, no action is taken (or a NACK could be sent)
   }
 
-  // Step 4: Proposer handles responses to Prepare(n)
-  handlePrepareResponses(responses) {
-    let highestAcceptedPropNum = null;
-    let valueToPropose = this.value; // This value should be initialized elsewhere in the class
+  // // Step 4: Proposer handles responses to Prepare(n)
+  // handlePrepareResponses(responses) {
+  //   let highestAcceptedPropNum = null;
+  //   let valueToPropose = this.value; // This value should be initialized elsewhere in the class
 
-    // Count the number of acceptors who acknowledged the prepare
-    const acks = responses.filter(response => response.type === "ACK_PREPARE");
-    const majority = Math.floor(responses.length / 2) + 1;
+  //   // Count the number of acceptors who acknowledged the prepare
+  //   const acks = responses.filter(response => response.type === "ACK_PREPARE");
+  //   const majority = Math.floor(responses.length / 2) + 1;
 
-    if (acks.length >= majority) {
-      // Find the highest accepted proposal number and corresponding value
-      acks.forEach(packet => {
-        if (packet.acceptedProp && (highestAcceptedPropNum === null || packet.acceptedProp > highestAcceptedPropNum)) {
-          highestAcceptedPropNum = packet.acceptedProp;
-          valueToPropose = packet.acceptedValue || valueToPropose;
-        }
-      });
+  //   if (acks.length >= majority) {
+  //     // Find the highest accepted proposal number and corresponding value
+  //     acks.forEach(packet => {
+  //       if (packet.acceptedProp && (highestAcceptedPropNum === null || packet.acceptedProp > highestAcceptedPropNum)) {
+  //         highestAcceptedPropNum = packet.acceptedProp;
+  //         valueToPropose = packet.acceptedValue || valueToPropose;
+  //       }
+  //     });
 
-      // If there was an accepted proposal with a value, propose that value
-      if (highestAcceptedPropNum !== null) {
-        this.value = valueToPropose;
-      }
+  //     // If there was an accepted proposal with a value, propose that value
+  //     if (highestAcceptedPropNum !== null) {
+  //       this.value = valueToPropose;
+  //     }
 
-      // Now broadcast the accept request with the chosen proposal number and value
-      return this.broadcastAccept(responses.map(response => response.from), this.proposalNum, this.value);
-    } else {
-      // Not enough acks to proceed, handle appropriately, e.g., retry or abort
-    }
-  }
+  //     // Now broadcast the accept request with the chosen proposal number and value
+  //     return this.broadcastAccept(responses.map(response => response.from), this.proposalNum, this.value);
+  //   } else {
+  //     // Not enough acks to proceed, handle appropriately, e.g., retry or abort
+  //   }
+  // }
 
 
   // Step 5: Proposer broadcasts Accept(n, value) to all servers (acceptors)1111111
@@ -122,47 +122,30 @@ class Server {
   }
 
 
+  // processAckPrepare(numOfServers, packet) {
+  //   // Implement the logic for processing ACK_PREPARE packets
+  //   // Potentially call broadcastAccept() based on algorithm's conditions
+  // }
 
+  // processAckAccept(numOfServers, packet) {
+  //   // Implement the logic for processing ACK_ACCEPT packets
+  // }
 
+  //   // check packet type, 
+  // // and call the corresponding method to process the packet
+  // receivePacket(packet) {
+  //   switch (packet.type) {
+  //     case "PREPARE":
+  //       return this.ackPrepare(packet);
+  //     case "ACCEPT":
+  //       return this.ackAccept(packet);
+  //     // Add cases for other packet types as needed
+  //     default:
+  //       // Handle unknown packet type
+  //       break;
+  //   }
+  // }
 
-
-
-  
-  ackAccept(packet) {
-    // Similar to ackPrepare, but for ACK_ACCEPT packets
-  }
-
-  processAckPrepare(numOfServers, packet) {
-    // Implement the logic for processing ACK_PREPARE packets
-    // Potentially call broadcastAccept() based on algorithm's conditions
-  }
-
-  processAckAccept(numOfServers, packet) {
-    // Implement the logic for processing ACK_ACCEPT packets
-  }
-
-    // check packet type, 
-  // and call the corresponding method to process the packet
-  receivePacket(packet) {
-    switch (packet.type) {
-      case "PREPARE":
-        return this.ackPrepare(packet);
-      case "ACCEPT":
-        return this.ackAccept(packet);
-      // Add cases for other packet types as needed
-      default:
-        // Handle unknown packet type
-        break;
-    }
-  }
-
-  ackPrepare(packet) {
-    const className = "ackPrepare";
-    const ackPacket = new Packet(className, packet.from); // Assuming 'from' is the origin server
-    ackPacket.type = "ACK_PREPARE";
-    // Include accepted proposal number and value, if any
-    return ackPacket;
-  }
 };
 
 export { Server };
