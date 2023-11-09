@@ -11,13 +11,6 @@ class Server {
     this.acceptedValue = null; // server accepted value
   }
 
-  broadcastPropose(servers, value) {
-    const id = Date.now();
-    return servers.map((server, i) => {
-      return this.propose(server, id + i, value)
-    })
-  }
-
   // Step 1: Choose new proposal number and create packet
   prepare(server, id, proposalNum) {
     const packet = new Packet(this, server)
@@ -36,8 +29,8 @@ class Server {
   }
 
 
-  // Step 3: Acceptor responds to Prepare(n)
-  respondToPrepare(packet) {
+  // Step 3: Acceptor responds to Prepare(n)1111
+  ackPrepare(packet) {
     if (packet.proposalNum >= this.minProposal) {
       this.minProposal = packet.proposalNum;
       const responsePacket = new Packet(this, packet.from); // Assuming 'from' indicates the origin
@@ -81,7 +74,7 @@ class Server {
   }
 
 
-  // Step 5: Proposer broadcasts Accept(n, value) to all servers (acceptors)
+  // Step 5: Proposer broadcasts Accept(n, value) to all servers (acceptors)1111111
   broadcastAccept(servers, proposalNum, value) {
     servers.map(server => {
       return this.accept(server, proposalNum, value);
@@ -98,8 +91,8 @@ class Server {
     return packet;
   }
 
-  // Step 6: Acceptor responds to Accept(n, value)
-  respondToAccept(packet) {
+  // Step 6: Acceptor responds to Accept(n, value) 1111111
+  ackAccept(packet) {
     if (packet.proposalNum >= this.minProposal) {
       this.minProposal = packet.proposalNum;
       this.acceptedProp = packet.proposalNum;
