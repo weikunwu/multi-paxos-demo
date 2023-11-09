@@ -5,19 +5,78 @@ class Server {
     this.id = name; // server name
     this.x = null; // server x postion
     this.y = null; // server y position
+    this.acceptedValue = null; // server accepted value
+    this.acceptedProp = null; // server promised number
+    this.minProposal = null; // min proposal number
+
   }
 
-  broadcastPropose(servers, value) {
+  broadcastPrepare(servers, proposalNum) {
     const id = Date.now();
     return servers.map((server, i) => {
-      return this.propose(server, id + i, value)
+      return this.prepare(server, id + i, proposalNum)
     })
   }
 
-  propose(server, id, value) {
+  prepare(server, id, proposalNum) {
     const packet = new Packet(this, server)
     packet.id = id;
+    packet.type = 'PREPARE';
+    packet.proposalNum = proposalNum;
     return packet;
+  }
+
+  receivedPacket(packet) {
+    const packetNum = packet.proposalNum;
+    const packetValue = packet.value;
+    const respond = Packet(this, packet.from);
+    switch (packet.type) {
+      case 'PREPARE':
+        // No accepted value
+        if (this.acceptedValue === null) {
+          if (this.minProposal < packetNum) {
+            // Update server min proposal num
+            this.minProposal = packetNum;
+            respond.proposalNum = packetNum;
+            //ackPrepare(respond);
+          } else { } // Ignore prepare request
+        } else {
+          // Have accepted value
+          respond.proposalNum = this.acceptedProp;
+          respond.value = this.acceptedValue;
+          //ackPrepare(respond);
+        }
+        break;
+      case 'ACCEPT':
+        // No accepted value
+        if (this.acceptedValue === null) {
+          if (this.minProposal < packetNum) {
+            // Update server min proposal num
+            this.minProposal = packetNum;
+            this.acceptedProp = packetNum;
+            this.acceptedValue = packetValue;
+            // Reply (ProposalNum, Value)
+            respond.proposalNum = packetNum;
+            respond.value = packetValue;
+            //ackAccept(respond);
+          } else { } // Ignore accept request
+        } else {
+          // Have accepted value
+          respond.proposalNum = this.acceptedProp;
+          respond.value = this.acceptedValue;
+          //ackAccept(respond);
+        }
+        break;
+      case 'ACK_PREPARE':
+        //processAckPrepare();
+        break;
+      case 'ACK_ACCEPT':
+        //processAckAccept();
+        break;
+      default:
+        // Do nothing
+        break;
+    }
   }
 };
 
