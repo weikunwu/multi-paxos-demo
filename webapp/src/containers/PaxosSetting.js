@@ -16,7 +16,6 @@ import LabelIconSlider from './LabelIconSlider';
 
 const PaxosSetting = ({ className }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
-  const [selectedRole, setSelectedRole] = useState('both'); // New state for selected role
 
   const handleStartButton = () => {
     const cur = paxosState.on;
@@ -37,7 +36,6 @@ const PaxosSetting = ({ className }) => {
     const circleRadius = 200; // radius of the circle
     const offset = 200; // Center offset for the node
     const newServer = new Server(`${paxosState.servers.length + 1}`); // Declare newServer
-    newServer.role = selectedRole; // Assign the selected role to the new server
     
     // Calculate the position for the new server immediately
     const totalServers = paxosState.servers.length + 1; // Include the new server
@@ -62,10 +60,6 @@ const PaxosSetting = ({ className }) => {
     });
   };
   
-  // Add a function to handle role selection changes
-  const handleRoleChange = (e) => {
-    setSelectedRole(e.target.value);
-  };
 
   const handleMessageDropRateChange = (dropRate) => {
     setPaxosState({
@@ -94,16 +88,17 @@ const PaxosSetting = ({ className }) => {
         max={5}
         handleChange={handleSpeedChange}
       />
-      <LabelIconSlider
-        leftIcon={<AiOutlineCheck />}
-        rightIcon={<AiOutlineClose />}
-        label='Message Drop Rate'
-        min={0}
-        max={1}
-        step={0.1} // Assuming the drop rate is between 0 (no drops) and 1 (all dropped), with a step of 0.1
-        value={paxosState.messageDropRate}
-        handleChange={handleMessageDropRateChange}
-      />
+    <LabelIconSlider
+      leftIcon={<AiOutlineCheck />}
+      rightIcon={<AiOutlineClose />}
+      label='Message Drop Rate'
+      min={0}
+      max={1}
+      step={0.1}
+      value={paxosState.messageDropRate}
+      handleChange={handleMessageDropRateChange}
+      disabled={paxosState.on} // Disable when the simulation is on
+    />
     </div>
   )
 }

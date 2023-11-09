@@ -3,84 +3,137 @@ import { Packet } from './Packet';
 class Server {
   constructor(name) {
     this.id = name; // server name
-    this.down = false;// whether server is down 
-    this.x = null; // server x position
+    this.x = null; // server x postion
     this.y = null; // server y position
-    this.minPropNum = null; // server accepted min proposal number
-    this.acceptedProp = null; // server accepted proposal number
     this.acceptedValue = null; // server accepted value
+    this.acceptedProp = null; // server promised number
+    this.minProposal = null; // min proposal number
+    this.numOfServers = 0;
   }
 
-  sendMessage(packet) {
-    if (this.shouldDropMessage()) {
-      // Simulates message drop and logs it for debugging purposes.
-      console.log(`Message with ID ${packet.id} dropped.`);
-      return null; // Returning null to indicate the message was dropped.
-    }
-    return packet; // The message is sent normally.
-  }
-
-  shouldDropMessage() {
-    // Use the message drop rate from the context/state
-    return Math.random() < this.messageDropRate;
-  }
-
-  // Modify existing methods to use sendMessage
   broadcastPropose(servers, value) {
     const id = Date.now();
     return servers.map((server, i) => {
-      const proposalPacket = this.propose(server, id + i, value);
-      return this.sendMessage(proposalPacket);
-    }).filter(packet => packet !== null); // Filter out null values (dropped messages)
+      return this.propose(server, id + i, value)
+    })
   }
 
-  // broadcastPropose(servers, value) {
-  //   const id = Date.now();
-  //   return servers.map((server, i) => {
-  //     return this.propose(server, id + i, value)
-  //   })
-  // }
-
-  propose(server, id, value) {
+  // Step 1: Choose new proposal number and create packet
+  prepare(server, id, proposalNum) {
     const packet = new Packet(this, server)
     packet.id = id;
+    packet.type = "PREPARE";
+    packet.proposalNum = proposalNum;
     return packet;
   }
 
-  // [Packet] broadcastAccept(servers, proposalNum, value) to All
-  // broadcast accept packets to all acceptors
-  broadcastAccept(servers, proposalNum, value) {
-    return servers.map(server => {
-      // Only broadcast to servers that are not down
-      if (!server.down) {
-        return this.accept(server, proposalNum, value);
-      }
-    }).filter(packet => packet !== undefined); // Filter out undefined values (from servers that are down)
+   // Step 2: Proposer broadcasts Prepare(n) to all servers (acceptors)
+   broadcastPrepare(servers, proposalNum, numOfServers) {
+    const id = Date.now();
+    this.numOfServers = numOfServers; 
+    return servers.map((server, i) => {
+      return this.prepare(server, id + i, proposalNum)
+    })
+  }
+  
+  // Step 3: Acceptor responds to Prepare(n)
+  respondToPrepare(packet) {
+    if (packet.proposalNum >= this.minProposal) {
+      this.minProposal = packet.proposalNum;
+      const responsePacket = new Packet(this, packet.from); // Assuming 'from' indicates the origin
+      responsePacket.type = "ACK_PREPARE";
+      responsePacket.acceptedProp = this.minProposal;
+      responsePacket.acceptedValue = this.acceptedValue;
+      // Send the responsePacket back to the proposer
+      return responsePacket;
+    }
+    // If packet.proposalNum < this.minProposal, no action is taken (or a NACK could be sent)
   }
 
+  // Step 4: Proposer handles responses to Prepare(n)
+  handlePrepareResponses(responses) {
+    let highestAcceptedPropNum = null;
+    let valueToPropose = this.value; // This value should be initialized elsewhere in the class
+
+    // Count the number of acceptors who acknowledged the prepare
+    const acks = responses.filter(response => response.type === "ACK_PREPARE");
+    const majority = Math.floor(responses.length / 2) + 1;
+
+    if (acks.length >= majority) {
+      // Find the highest accepted proposal number and corresponding value
+      acks.forEach(packet => {
+        if (packet.acceptedProp && (highestAcceptedPropNum === null || packet.acceptedProp > highestAcceptedPropNum)) {
+          highestAcceptedPropNum = packet.acceptedProp;
+          valueToPropose = packet.acceptedValue || valueToPropose;
+        }
+      });
+
+      // If there was an accepted proposal with a value, propose that value
+      if (highestAcceptedPropNum !== null) {
+        this.value = valueToPropose;
+      }
+
+      // Now broadcast the accept request with the chosen proposal number and value
+      return this.broadcastAccept(responses.map(response => response.from), this.proposalNum, this.value);
+    } else {
+      // Not enough acks to proceed, handle appropriately, e.g., retry or abort
+    }
+  }
+
+  // Step 5: Proposer broadcasts Accept(n, value) to all servers (acceptors)
+  broadcastAccept(servers, proposalNum, value) {
+    servers.map(server => {
+      return this.accept(server, proposalNum, value);
+    });
+    // Code to send accept packets to all servers
+  }
+
+  // Helper method to create an accept packet
   accept(server, proposalNum, value) {
     const packet = new Packet(this, server);
-    packet.type = 'ACCEPT'; // Setting the packet type to 'ACCEPT'
+    packet.type = "ACCEPT";
     packet.proposalNum = proposalNum;
-    packet.value = value;
-    // The `drop` field should be determined by some condition or external input, not set directly here.
+    packet.value = value; // The value want to be accepted
     return packet;
   }
 
-  // [Packet] ackPrepare(packet) to one
-  // send ackPrepare pkt back with accepted ProposalNum and value if any.
-  ackPrepare(packet) {
-    if (!this.minPropNum || packet.proposalNum > this.minPropNum) {
-      this.minPropNum = packet.proposalNum;
-      const ackPacket = new Packet(this, packet.from); // using 'from' in Packet as it's the origin
-      ackPacket.type = 'ACK_PREPARE';
-      ackPacket.proposalNum = this.minPropNum;
-      ackPacket.acceptedProp = this.acceptedProp;
-      ackPacket.acceptedValue = this.acceptedValue;
-      // other properties like 'drop' are not set here as they might be used elsewhere in the logic
-      return ackPacket;
+  // Step 6: Acceptor responds to Accept(n, value)
+  respondToAccept(packet) {
+    if (packet.proposalNum >= this.minProposal) {
+      this.minProposal = packet.proposalNum;
+      this.acceptedProp = packet.proposalNum;
+      this.acceptedValue = packet.value;
+      const responsePacket = new Packet(this, packet.from);
+      responsePacket.type = "ACK_ACCEPT";
+      responsePacket.acceptedProp = this.acceptedProp;
+      responsePacket.acceptedValue = this.acceptedValue;
+      // Send the responsePacket back to the proposer
+      return responsePacket; // or only return minProposal
     }
-    // If the packet's proposal number is less than the highest promised, no ack is sent
+    // If packet.proposalNum < this.minProposal, no action is taken (or a NACK could be sent)
+  }
+
+
+  // Step 7: Broadcast chosen value to all servers (learners)
+  broadcastLearner(servers) {
+    const acceptedValue = this.acceptedValue;
+    servers.map(server => {
+      return this.valueChosen(server, acceptedValue);
+    });
+  }
+  // Helper method to choose value
+  valueChosen(server, acceptedValue) {
+    const packet = new Packet(this, server)
+    packet.proposalNum = acceptedValue;
+    return packet;
+  }
+
+  ackPrepare(packet) {
+    const className = "ackPrepare";
+    const ackPacket = new Packet(className, packet.from); // Assuming 'from' is the origin server
+    ackPacket.type = "ACK_PREPARE";
+    // Include accepted proposal number and value, if any
+    return ackPacket;
   }
 
   //[Packet] ackAccept(packet) to one
@@ -93,44 +146,51 @@ class Server {
       ackPacket.type = 'ACK_ACCEPT';
       ackPacket.proposalNum = this.acceptedProp;
       ackPacket.value = this.acceptedValue;
-      // again, 'drop' is not set here
       return ackPacket;
     }
     // If the packet's proposal number is less than the highest promised, no ack is sent
   }
 
   processAckPrepare(numOfServers, packet) {
-    // This function would process an ack for a prepare message.
-    // It should track the number of acks received and determine if it has reached a majority.
-    // If a majority is reached, it should call broadcastAccept.
-    
-    // Tracking acks for the prepare phase would typically involve incrementing a count stored in the state
     this.prepareAcks = (this.prepareAcks || 0) + 1;
     if (this.prepareAcks > numOfServers / 2) {
       // Majority of acks received, can proceed to the accept phase
-      // Assuming the value to be proposed is stored in this.proposalValue
       this.broadcastAccept(this.servers, packet.proposalNum, this.proposalValue);
-      // Reset prepareAcks for future proposals
       this.prepareAcks = 0;
     }
   }
 
   processAckAccept(numOfServers, packet) {    
-    // Tracking acks for the accept phase would typically involve incrementing a count stored in the state
     this.acceptAcks = (this.acceptAcks || 0) + 1;
     if (this.acceptAcks > numOfServers / 2) {
-      // Majority of acks received, consensus has been reached
       this.commitValue(packet.value);
       this.acceptAcks = 0;
     }
   }
   
-  commitValue(value) {
-    // Logic to commit the value to the state machine
+  receivedPacket(packet) {
+    const packetNum = packet.proposalNum;
+    const packetValue = packet.value;
+    const respond = new Packet(this, packet.from);
+    switch (packet.type) {
+      case "PREPARE":
+        return this.ackPrepare(packet);
+      case "ACCEPT":
+        return this.ackAccept(packet);
+      case 'ACK_PREPARE':
+        this.processAckPrepare(this.numOfServers, packet);
+        break;
+      case 'ACK_ACCEPT':
+        this.processAckAccept(this.numOfServers, packet);
+        break;
+      default:
+        // Do nothing
+        break;
+    }
   }
-  
-};
 
+
+};
 
 
 export { Server };
