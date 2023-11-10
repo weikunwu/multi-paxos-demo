@@ -14,7 +14,7 @@ const Server = ({ className, server }) => {
     setPaxosState((prevState) => {
       const newPackets = [
         ...prevState.packets,
-        ...server.broadcastPropose(receivers, 0)
+        ...server.broadcastPrepare(receivers, 0)
       ];
 
       return {
