@@ -11,18 +11,20 @@ const Server = ({ className, server }) => {
 
   const propose = () => {
     const receivers = paxosState.servers.filter(s => s.id !== server.id);
+    // const receivers = paxosState.servers.filter(s => s.id !== server.id).map(s => s.id); // only stores server's id to the array
     setPaxosState((prevState) => {
       const newPackets = [
         ...prevState.packets,
         ...server.broadcastPrepare(receivers, 0)
       ];
-
+  
       return {
         ...prevState,
         packets: newPackets
       }
     })
   }
+  
   return (
     <div className={`server-container ${className}`}>
       <Button
