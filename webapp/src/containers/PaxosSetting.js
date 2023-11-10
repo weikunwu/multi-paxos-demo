@@ -34,18 +34,13 @@ const PaxosSetting = ({ className }) => {
 
   const handleAddServer = () => {
     const circleRadius = 200; // radius of the circle
-    const offset = 200; // Center offset for the node
-    const newServer = new Server(`${paxosState.servers.length + 1}`); // Declare newServer
-    
-    // Calculate the position for the new server immediately
-    const totalServers = paxosState.servers.length + 1; // Include the new server
-    const angle = 2 * Math.PI / totalServers; // Angle for the new server
-    newServer.x = offset + circleRadius * Math.cos(angle * totalServers) - 10;
-    newServer.y = offset + circleRadius * Math.sin(angle * totalServers) - 10;
-  
-    // Add the new server to the list
-    const newServers = [...paxosState.servers, newServer];
-  
+    // const offset = circleContainer.offsetWidth / 2 - 10; // Center offset for the node
+    const offset = 200;
+    const newServers = [...paxosState.servers]
+    newServers.push(new Server(`${paxosState.servers.length + 1}`));
+    const totalServers = newServers.length;
+    const angle = 2 * Math.PI / totalServers;
+
     // Update the positions for all servers
     newServers.forEach((server, i) => {
       const theta = angle * (i + 1); // New angle for all nodes
@@ -60,14 +55,6 @@ const PaxosSetting = ({ className }) => {
     });
   };
   
-
-  const handleMessageDropRateChange = (dropRate) => {
-    setPaxosState({
-      ...paxosState,
-      messageDropRate: dropRate
-    });
-  }
-
   return (
     <div className={`paxos-setting-container ${className}`} >
       <Button
@@ -88,17 +75,17 @@ const PaxosSetting = ({ className }) => {
         max={5}
         handleChange={handleSpeedChange}
       />
-    <LabelIconSlider
-      leftIcon={<AiOutlineCheck />}
-      rightIcon={<AiOutlineClose />}
-      label='Message Drop Rate'
-      min={0}
-      max={1}
-      step={0.1}
-      value={paxosState.messageDropRate}
-      handleChange={handleMessageDropRateChange}
-      disabled={paxosState.on} // Disable when the simulation is on
-    />
+      <LabelIconSlider
+        leftIcon={<AiOutlineCheck />}
+        rightIcon={<AiOutlineClose />}
+        label='Message Drop Rate'
+        min={0}
+        max={1}
+        step={0.1}
+        value={paxosState.messageDropRate}
+        handleChange={handleMessageDropRateChange}
+        disabled={paxosState.on} // Disable when the simulation is on
+      />
     </div>
   )
 }

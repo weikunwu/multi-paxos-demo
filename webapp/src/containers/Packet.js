@@ -54,7 +54,7 @@ const Packet = ({ className, packet, handlePacketArrive }) => {
         <Button
           className='packet'
           shape="circle"
-        >{packet.id}</Button>
+        >{packet.time}</Button>
       </animated.div>
     </div>
   )
