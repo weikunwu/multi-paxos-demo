@@ -3,7 +3,8 @@ import { Packet } from './Packet';
 class Server {
   constructor(name) {
     this.id = name; // server name
-    this.x = null; // server x postion
+    this.down = null; // whether server is down  type=boolean
+    this.x = null; // server x position
     this.y = null; // server y position
     this.acceptedValue = null; // server accepted value
     this.acceptedProp = null; // server promised number
@@ -14,21 +15,12 @@ class Server {
     this.servers = []; // store the list of serverIds
   }
 
-  broadcastPropose(servers, value) {
+  broadcastPrepare(servers, proposalNum) {
     const id = Date.now();
     this.numOfServers = servers.length; 
     return servers.map((server, i) => {
-      return this.propose(server, id + i, value)
+      return this.prepare(server, id + i, proposalNum)
     })
-  }
-
-  // Step 1: Choose new proposal number and create packet
-  prepare(server, id, proposalNum) {
-    const packet = new Packet(this, server)
-    packet.id = id;
-    packet.type = "PREPARE";
-    packet.proposalNum = proposalNum;
-    return packet;
   }
 
    // Step 2: Proposer broadcasts Prepare(n) to all servers (acceptors)
@@ -194,5 +186,5 @@ class Server {
   }
 };
 
-
 export { Server };
+

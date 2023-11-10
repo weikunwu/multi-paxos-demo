@@ -80,11 +80,9 @@ const PaxosSetting = ({ className }) => {
         rightIcon={<AiOutlineClose />}
         label='Message Drop Rate'
         min={0}
-        max={1}
-        step={0.1}
-        value={paxosState.messageDropRate}
-        handleChange={handleMessageDropRateChange}
-        disabled={paxosState.on} // Disable when the simulation is on
+        max={(100)}
+        step={10}
+        handleChange={handleDropRateChange}
       />
     </div>
   )
