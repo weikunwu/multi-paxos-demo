@@ -3,7 +3,7 @@ import React, {
   useEffect,
 } from 'react';
 
-import { Button } from 'antd';
+import { Tooltip, Button } from 'antd';
 import styled from 'styled-components';
 
 import {
@@ -20,7 +20,7 @@ import { PaxosContext } from '../PaxosContext';
 const offset = (SERVER_SIZE - PACKET_SIZE) / 2;
 const Packet = ({ className, packet, handlePacketArrive }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
-
+  const packetInfo = `ID: ${packet.time}\nmsgHead: ${packet.msgHead}\nvalue: ${packet.value}`;
   const from = packet.from;
   const to = packet.to;
 
@@ -46,15 +46,18 @@ const Packet = ({ className, packet, handlePacketArrive }) => {
       api.pause()
     }
   }, [paxosState.on])
+  
   return (
     <div className={`packet-container ${className}`}>
       <animated.div
         style={spring}
       >
-        <Button
-          className='packet'
-          shape="circle"
-        >{packet.time}</Button>
+        <Tooltip title={<pre>{packetInfo}</pre>}>
+          <Button
+            className='packet'
+            shape="circle"
+          ></Button>
+        </Tooltip>
       </animated.div>
     </div>
   )
