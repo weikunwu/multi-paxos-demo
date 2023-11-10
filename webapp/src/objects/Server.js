@@ -16,6 +16,7 @@ class Server {
 
   broadcastPropose(servers, value) {
     const id = Date.now();
+    this.numOfServers = servers.length; 
     return servers.map((server, i) => {
       return this.propose(server, id + i, value)
     })
@@ -33,7 +34,6 @@ class Server {
    // Step 2: Proposer broadcasts Prepare(n) to all servers (acceptors)
    broadcastPrepare(servers, proposalNum) {
     const id = Date.now();
-    this.numOfServers = servers.length; 
     return servers.map((server, i) => {
       return this.prepare(server, id + i, proposalNum);
     });
@@ -157,20 +157,22 @@ class Server {
   processAckPrepare(servers, packet) {
     this.prepareAcks += 1;
     if (this.prepareAcks > this.numOfServers / 2) {
-      // Majority of acks received, can proceed to the accept phase
-      this.broadcastAccept(this.servers, packet.proposalNum, this.value); 
+      this.broadcastAccept(this.servers, packet.proposalNum, this.value);
       this.prepareAcks = 0;
+      return [packet]; // Return the acknowledged prepare packet
     }
+    return []; // Return an empty array if the condition is not met
   }
-
+  
   processAckAccept(servers, packet) {
     this.acceptAcks += 1;
     if (this.acceptAcks > this.numOfServers / 2) {
       this.acceptAcks = 0;
       this.acceptedValue = packet.value;
-      return this.acceptedValue; // do we need to return the acceptedvalue?
+      return [packet]; // Return the acknowledged accept packet
     }
-  }
+    return []; // Return an empty array if the condition is not met
+  }  
   
   receivedPacket(packet) {
     const packetNum = packet.proposalNum;
@@ -182,8 +184,7 @@ class Server {
       case "ACCEPT":
         return this.ackAccept(packet);
       case 'ACK_PREPARE':
-        this.processAckPrepare(this.servers, packet);
-        break;
+        return this.processAckPrepare(this.servers, packet);
       case 'ACK_ACCEPT':
         return this.processAckAccept(this.servers, packet);
       default:
