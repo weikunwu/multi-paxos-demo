@@ -24,7 +24,7 @@ class Server {
     packet.id = id;
     packet.type = 'PREPARE';
     packet.proposalNum = proposalNum;
-    return packet;
+    return [packet];
   }
 
   broadcastAccept(servers, proposalNum) {
@@ -40,7 +40,7 @@ class Server {
     packet.type = 'ACCEPT';
     packet.proposalNum = proposalNum;
     packet.value = this.id;
-    return packet;
+    return [packet];
   }
 
   ackPrepare(packetIn) {
@@ -51,13 +51,13 @@ class Server {
         // Update server min proposal num
         this.minProposal = proposalNum;
         packetOut.proposalNum = proposalNum;
-        return packetOut;
-      } else { } // n < minProposal: Ignore prepare request
+        return [packetOut];
+      } else { return [] } // n < minProposal: Ignore prepare request
     } else {
       // Have accepted value
       packetOut.proposalNum = this.acceptedProp;
       packetOut.value = this.acceptedValue;
-      return packetOut;
+      return [packetOut];
     }
   }
 
@@ -77,26 +77,26 @@ class Server {
         // Reply (ProposalNum, Value)
         packetOut.proposalNum = proposalNum;
         packetOut.value = proposalValue;
-        return packetOut;
-      } else { } // n < minProposal: Ignore accept request
+        return [packetOut];
+      } else { return [] } // n < minProposal: Ignore accept request
     } else {
       // Have accepted value
       packetOut.proposalNum = this.acceptedProp;
       packetOut.value = this.acceptedValue;
-      return packetOut;
+      return [packetOut];
     }
   }
 
   receivedPacket(servers, packet) {
     switch (packet.type) {
       case 'PREPARE':
-        return this.ackPrepare(packet);
+        return [this.ackPrepare(packet)];
       case 'ACCEPT':
-        return this.ackAccept(packet);
+        return [this.ackAccept(packet)];
       case 'ACK_PREPARE':
-        return this.processAckPrepare(servers, packet);
+        return [this.processAckPrepare(servers, packet)];
       case 'ACK_ACCEPT':
-        return this.processAckAccept(servers, packet);
+        return [this.processAckAccept(servers, packet)];
       default:
         // Do nothing
         break;
