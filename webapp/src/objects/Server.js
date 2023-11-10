@@ -9,6 +9,9 @@ class Server {
     this.acceptedProp = null; // server promised number
     this.minProposal = null; // min proposal number
     this.numOfServers = 0;
+    this.prepareAcks = 0; // initialize prepare acknowledgments counter
+    this.acceptAcks = 0; // initialize accept acknowledgments counter
+    this.servers = []; // store the list of serverIds
   }
 
   broadcastPropose(servers, value) {
@@ -28,12 +31,12 @@ class Server {
   }
 
    // Step 2: Proposer broadcasts Prepare(n) to all servers (acceptors)
-   broadcastPrepare(servers, proposalNum, numOfServers) {
+   broadcastPrepare(servers, proposalNum) {
     const id = Date.now();
-    this.numOfServers = numOfServers; 
+    this.numOfServers = servers.length; 
     return servers.map((server, i) => {
-      return this.prepare(server, id + i, proposalNum)
-    })
+      return this.prepare(server, id + i, proposalNum);
+    });
   }
   
   // Step 3: Acceptor responds to Prepare(n)
@@ -151,20 +154,21 @@ class Server {
     // If the packet's proposal number is less than the highest promised, no ack is sent
   }
 
-  processAckPrepare(numOfServers, packet) {
-    this.prepareAcks = (this.prepareAcks || 0) + 1;
-    if (this.prepareAcks > numOfServers / 2) {
+  processAckPrepare(servers, packet) {
+    this.prepareAcks += 1;
+    if (this.prepareAcks > this.numOfServers / 2) {
       // Majority of acks received, can proceed to the accept phase
-      this.broadcastAccept(this.servers, packet.proposalNum, this.proposalValue);
+      this.broadcastAccept(this.servers, packet.proposalNum, this.value); 
       this.prepareAcks = 0;
     }
   }
 
-  processAckAccept(numOfServers, packet) {    
-    this.acceptAcks = (this.acceptAcks || 0) + 1;
-    if (this.acceptAcks > numOfServers / 2) {
-      this.commitValue(packet.value);
+  processAckAccept(servers, packet) {
+    this.acceptAcks += 1;
+    if (this.acceptAcks > this.numOfServers / 2) {
       this.acceptAcks = 0;
+      this.acceptedValue = packet.value;
+      return this.acceptedValue; // do we need to return the acceptedvalue?
     }
   }
   
@@ -178,18 +182,15 @@ class Server {
       case "ACCEPT":
         return this.ackAccept(packet);
       case 'ACK_PREPARE':
-        this.processAckPrepare(this.numOfServers, packet);
+        this.processAckPrepare(this.servers, packet);
         break;
       case 'ACK_ACCEPT':
-        this.processAckAccept(this.numOfServers, packet);
-        break;
+        return this.processAckAccept(this.servers, packet);
       default:
         // Do nothing
         break;
     }
   }
-
-
 };
 
 

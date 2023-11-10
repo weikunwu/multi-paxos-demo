@@ -11,11 +11,11 @@ const Server = ({ className, server }) => {
 
   const propose = () => {
     const receivers = paxosState.servers.filter(s => s.id !== server.id);
-    const numOfServers = paxosState.servers.length; // Get the number of servers from the state
+    // const receivers = paxosState.servers.filter(s => s.id !== server.id).map(s => s.id); // only stores server's id to the array
     setPaxosState((prevState) => {
       const newPackets = [
         ...prevState.packets,
-        ...server.broadcastPrepare(receivers, 0, numOfServers)
+        ...server.broadcastPrepare(receivers, 0)
       ];
   
       return {
