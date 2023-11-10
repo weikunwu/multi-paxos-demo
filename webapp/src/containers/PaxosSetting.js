@@ -1,5 +1,6 @@
-import React, { useContext, useState } from 'react';
-import { Button, Radio } from 'antd';
+import React, { useContext } from 'react';
+
+import { Button } from 'antd';
 import {
   AiOutlineCheck,
   AiOutlineClose,
@@ -32,6 +33,12 @@ const PaxosSetting = ({ className }) => {
     })
   }
 
+  const handleDropRateChange = (dropRate) => {
+    setPaxosState({
+      ...paxosState,
+      dropRate: 0.01 * dropRate
+    })
+  }
   const handleAddServer = () => {
     const circleRadius = 200; // radius of the circle
     // const offset = circleContainer.offsetWidth / 2 - 10; // Center offset for the node
@@ -41,20 +48,18 @@ const PaxosSetting = ({ className }) => {
     const totalServers = newServers.length;
     const angle = 2 * Math.PI / totalServers;
 
-    // Update the positions for all servers
     newServers.forEach((server, i) => {
-      const theta = angle * (i + 1); // New angle for all nodes
+      const theta = angle * (i + 1); // new angle for all nodes
       server.x = offset + circleRadius * Math.cos(theta) - 10;
       server.y = offset + circleRadius * Math.sin(theta) - 10;
-    });
-  
-    // Update the state with the new list of servers
+    })
+
     setPaxosState({
       ...paxosState,
       servers: newServers,
-    });
-  };
-  
+    })
+  }
+
   return (
     <div className={`paxos-setting-container ${className}`} >
       <Button
