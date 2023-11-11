@@ -9,7 +9,10 @@ class Server {
     this.acceptedValue = null; // server accepted value
     this.acceptedProp = null; // server promised number
     this.minProposal = null; // min proposal number
-
+    this.numOfServers = 0;
+    this.prepareAcks = 0; // initialize prepare acknowledgments counter
+    this.acceptAcks = 0; // initialize accept acknowledgments counter
+    this.servers = []; // store the list of serverIds
   }
 
   broadcastPrepare(servers, proposalNum) {
@@ -85,6 +88,26 @@ class Server {
       packetOut.value = this.acceptedValue;
       return [packetOut];
     }
+  }
+
+  processAckPrepare(servers, packet) {
+    this.prepareAcks += 1;
+    if (this.prepareAcks > this.numOfServers / 2) {
+      this.broadcastAccept(this.servers, packet.proposalNum, this.value);
+      this.prepareAcks = 0;
+      return [packet]; // Return the acknowledged prepare packet
+    }
+    return []; // Return an empty array if the condition is not met
+  }
+  
+  processAckAccept(servers, packet) {
+    this.acceptAcks += 1;
+    if (this.acceptAcks > this.numOfServers / 2) {
+      this.acceptAcks = 0;
+      this.acceptedValue = packet.value;
+      return [packet]; // Return the acknowledged accept packet
+    }
+    return []; // Return an empty array if the condition is not met
   }
 
   receivedPacket(servers, packet) {
