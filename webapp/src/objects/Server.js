@@ -9,16 +9,22 @@ class Server {
     this.acceptedValue = null; // server accepted value
     this.acceptedProp = null; // server promised number
     this.minProposal = null; // min proposal number
+    this.proposalNum = null; // proposer proposal number
+    this.proposalVal = null; // proposer proposal value
     this.numOfServers = 0;
     this.prepareAcks = 0; // initialize prepare acknowledgments counter
     this.acceptAcks = 0; // initialize accept acknowledgments counter
     this.servers = []; // store the list of serverIds
+
   }
 
-  broadcastPrepare(servers, proposalNum) {
-    const id = Date.now();
+  broadcastPrepare(servers, value) {
+    const proposalNum = Date.now();
+    this.proposalNum = proposalNum;
+    this.proposalVal = value;
+
     return servers.map((server, i) => {
-      return this.prepare(server, id + i, proposalNum)
+      return this.prepare(server, proposalNum + i, proposalNum)
     })
   }
 
@@ -27,7 +33,7 @@ class Server {
     packet.id = id;
     packet.type = 'PREPARE';
     packet.proposalNum = proposalNum;
-    return [packet];
+    return packet;
   }
 
   broadcastAccept(servers, proposalNum) {
@@ -42,25 +48,24 @@ class Server {
     packet.id = id;
     packet.type = 'ACCEPT';
     packet.proposalNum = proposalNum;
-    packet.value = this.id;
-    return [packet];
+    packet.value = this.proposalVal;
+    return packet;
   }
 
   ackPrepare(packetIn) {
     const proposalNum = packetIn.proposalNum;
     const packetOut = new Packet(this.id, packetIn.from);
-    if (this.acceptedValue === null) {
-      if (this.minProposal < proposalNum) {
-        // Update server min proposal num
-        this.minProposal = proposalNum;
-        packetOut.proposalNum = proposalNum;
-        return [packetOut];
-      } else { return [] } // n < minProposal: Ignore prepare request
-    } else {
-      // Have accepted value
-      packetOut.proposalNum = this.acceptedProp;
-      packetOut.value = this.acceptedValue;
+    if (this.minProposal < proposalNum) {
+      // Update server min proposal num
+      this.minProposal = proposalNum;
+      packetOut.type = 'ACK_PREPARE';
+      packetOut.proposalNum = proposalNum;
+      packetOut.acceptedProp = this.acceptedProp;
+      packetOut.acceptedValue = this.acceptedValue;
       return [packetOut];
+    } else {
+      // n < minProposal: Ignore prepare request
+      return []
     }
   }
 
@@ -68,25 +73,21 @@ class Server {
     const proposalNum = packetIn.proposalNum;
     const proposalValue = packetIn.value;
     const packetOut = new Packet(this.id, packetIn.from);
-    // No accepted value
-    if (this.acceptedValue === null) {
-      if (this.minProposal < proposalNum) {
-        // Update server min proposal num
-        this.minProposal = proposalNum;
-        // Update server accepted proposal num
-        this.acceptedProp = proposalNum;
-        // Update server accepted value
-        this.acceptedValue = proposalValue;
-        // Reply (ProposalNum, Value)
-        packetOut.proposalNum = proposalNum;
-        packetOut.value = proposalValue;
-        return [packetOut];
-      } else { return [] } // n < minProposal: Ignore accept request
-    } else {
-      // Have accepted value
-      packetOut.proposalNum = this.acceptedProp;
-      packetOut.value = this.acceptedValue;
+    packetOut.type = 'ACK_ACCEPT';
+    if (this.minProposal < proposalNum) {
+      // Update server min proposal num
+      this.minProposal = proposalNum;
+      // Update server accepted proposal num
+      this.acceptedProp = proposalNum;
+      // Update server accepted value
+      this.acceptedValue = proposalValue;
+      // Reply (minProposal)
+      packetOut.proposalNum = proposalNum;
+      packetOut.value = proposalValue;
       return [packetOut];
+    } else {
+      // n < minProposal: Ignore accept request
+      return []
     }
   }
 
@@ -99,7 +100,7 @@ class Server {
     }
     return []; // Return an empty array if the condition is not met
   }
-  
+
   processAckAccept(servers, packet) {
     this.acceptAcks += 1;
     if (this.acceptAcks > this.numOfServers / 2) {
@@ -110,16 +111,16 @@ class Server {
     return []; // Return an empty array if the condition is not met
   }
 
-  receivedPacket(servers, packet) {
+  receivePacket(servers, packet) {
     switch (packet.type) {
       case 'PREPARE':
-        return [this.ackPrepare(packet)];
+        return this.ackPrepare(packet);
       case 'ACCEPT':
-        return [this.ackAccept(packet)];
+        return this.ackAccept(packet);
       case 'ACK_PREPARE':
-        return [this.processAckPrepare(servers, packet)];
+        return this.processAckPrepare(servers, packet);
       case 'ACK_ACCEPT':
-        return [this.processAckAccept(servers, packet)];
+        return this.processAckAccept(servers, packet);
       default:
         // Do nothing
         break;
