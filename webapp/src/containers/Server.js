@@ -10,7 +10,7 @@ const Server = ({ className, server }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
 
   const propose = () => {
-    const receivers = paxosState.servers.filter(s => s.id !== server.id);
+    const receivers = paxosState.servers.filter(s => s.id !== server.id).map(s => s.id);
     setPaxosState((prevState) => {
       const newPackets = [
         ...prevState.packets,

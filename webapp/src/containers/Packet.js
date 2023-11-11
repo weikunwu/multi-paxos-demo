@@ -21,8 +21,9 @@ const offset = (SERVER_SIZE - PACKET_SIZE) / 2;
 const Packet = ({ className, packet, handlePacketArrive }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
 
-  const from = packet.from;
-  const to = packet.to;
+
+  const from = paxosState.servers.find(s => s.id === packet.from);
+  const to = paxosState.servers.find(s => s.id === packet.to);
 
   const [spring, api] = useSpring(() => ({
     from: { x: from.x + offset, y: from.y + offset },
