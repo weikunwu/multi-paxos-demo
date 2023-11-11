@@ -10,41 +10,38 @@ class Server {
     this.acceptedProp = null; // server promised number
     this.minProposal = null; // min proposal number
     this.proposalNum = null; // proposer proposal number
-    this.proposalVal = null; // proposer proposal value
+    this.proposalValue = null; // proposer proposal value
 
   }
 
   broadcastPrepare(servers, value) {
     const proposalNum = Date.now();
     this.proposalNum = proposalNum;
-    this.proposalVal = value;
+    this.proposalValue = value;
 
-    return servers.map((server, i) => {
-      return this.prepare(server, proposalNum + i, proposalNum)
+    return servers.map((server) => {
+      return this.prepare(server, proposalNum)
     })
   }
 
-  prepare(server, id, proposalNum) {
+  prepare(server, proposalNum) {
     const packet = new Packet(this.id, server)
-    packet.id = id;
     packet.type = 'PREPARE';
     packet.proposalNum = proposalNum;
     return packet;
   }
 
   broadcastAccept(servers, proposalNum) {
-    const id = Date.now();
-    return servers.map((server, i) => {
-      return this.acceptRequest(server, id + i, proposalNum)
+    return servers.map((server) => {
+      return this.acceptRequest(server, proposalNum)
     })
   }
 
-  acceptRequest(server, id, proposalNum) {
+  acceptRequest(server, proposalNum) {
     const packet = new Packet(this.id, server)
-    packet.id = id;
     packet.type = 'ACCEPT';
     packet.proposalNum = proposalNum;
-    packet.value = this.proposalVal;
+    packet.value = this.proposalValue;
     return packet;
   }
 
@@ -85,6 +82,14 @@ class Server {
       // n < minProposal: Ignore accept request
       return []
     }
+  }
+
+  processAckPrepare() {
+    return []
+  }
+
+  processAckAccept() {
+    return []
   }
 
   receivePacket(servers, packet) {

@@ -1,10 +1,14 @@
 import React, { useContext } from 'react';
 
-import { Button } from 'antd';
+import {
+  Button,
+  Tooltip,
+} from 'antd';
 import styled from 'styled-components';
 
 import { SERVER_SIZE } from '../Constants';
 import { PaxosContext } from '../PaxosContext';
+import ServerTooltip from './ServerTooltip';
 
 const Server = ({ className, server }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
@@ -23,17 +27,33 @@ const Server = ({ className, server }) => {
       }
     })
   }
+
+  const handleShutDown = () => {
+
+  }
   return (
     <div className={`server-container ${className}`}>
-      <Button
-        className='server'
-        size='large'
-        shape="circle"
-        onClick={propose}
-        style={{
-          left: `${server.x || 200}px`,
-          top: `${server.y || 200}px`
-        }}>{server.id}</Button>
+      <Tooltip
+        overlayInnerStyle={{
+          width: '400px',
+        }}
+        title={<ServerTooltip
+          server={server}
+          handlePropose={propose}
+          handleShutDown={handleShutDown}
+        />}
+        trigger={'click'}
+      >
+
+        <Button
+          className='server'
+          size='large'
+          shape="circle"
+          style={{
+            left: `${server.x || 200}px`,
+            top: `${server.y || 200}px`
+          }}>{server.id}</Button>
+      </Tooltip>
     </div>
   )
 }

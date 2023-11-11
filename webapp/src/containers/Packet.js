@@ -18,9 +18,8 @@ import {
 import { PaxosContext } from '../PaxosContext';
 
 const offset = (SERVER_SIZE - PACKET_SIZE) / 2;
-const Packet = ({ className, packet, handlePacketArrive }) => {
+const Packet = ({ className, packet }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
-
 
   const from = paxosState.servers.find(s => s.id === packet.from);
   const to = paxosState.servers.find(s => s.id === packet.to);
@@ -28,13 +27,38 @@ const Packet = ({ className, packet, handlePacketArrive }) => {
   const [spring, api] = useSpring(() => ({
     from: { x: from.x + offset, y: from.y + offset },
     to: { x: to.x + offset, y: to.y + offset },
-    config: { duration: 5 / paxosState.speed * 1000 },
+    config: { duration: Math.sqrt((from.x - to.x) ** 2 + (from.y - to.y) ** 2) / paxosState.speed * 20 },
     onRest: () => {
+
       setPaxosState((prevState) => {
         const newPackets = prevState.packets.filter(p => p.id !== packet.id);
+        const curPacket = prevState.packets.find(p => p.id === packet.id);
+
+        if (curPacket.drop) {
+          return {
+            ...prevState,
+            packets: newPackets
+          }
+        }
+
+        const receiver = prevState.servers.find(s => s.id === curPacket.to);
+        const otherServers = prevState.servers.filter(s => s.id !== curPacket.to).map(s => s.id);
+        const packets = [
+          ...newPackets,
+          ...receiver.receivePacket(otherServers, curPacket)
+        ];
+
+        const servers = prevState.servers.map(s => {
+          if (s.id === receiver.id) {
+            return receiver;
+          }
+          return s;
+        })
+
         return {
           ...prevState,
-          packets: newPackets
+          servers,
+          packets,
         }
       })
     }
