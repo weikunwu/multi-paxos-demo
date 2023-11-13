@@ -32,6 +32,13 @@ const PaxosSetting = ({ className }) => {
       speed: speed
     })
   }
+
+  const handleDropRateChange = (dropRate) => {
+    setPaxosState({
+      ...paxosState,
+      dropRate: 0.01 * dropRate
+    })
+  }
   const handleAddServer = () => {
     const circleRadius = 200; // radius of the circle
     // const offset = circleContainer.offsetWidth / 2 - 10; // Center offset for the node
@@ -77,6 +84,10 @@ const PaxosSetting = ({ className }) => {
         leftIcon={<AiOutlineCheck />}
         rightIcon={<AiOutlineClose />}
         label='Message Drop Rate'
+        min={0}
+        max={(100)}
+        step={10}
+        handleChange={handleDropRateChange}
       />
     </div>
   )
