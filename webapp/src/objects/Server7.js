@@ -1,3 +1,5 @@
+// Crash Occurs after the server successfully accepts the packet
+// and Re-execute with the Same Proposal Number but Different Value
 import { Packet } from './Packet';
 
 class Server {
@@ -141,18 +143,63 @@ class Server {
 
   processAckAccept(otherServers, packet) {
     const proposalNum = packet.proposalNum;
-    if (proposalNum >= this.minProposal) {
-      this.acceptAcks += 1;
-      if (this.acceptAcks > (otherServers.length + 1) / 2) {
-        this.acceptAcks = 0;
-        // Handle the acceptance of the new value here, if necessary
-      }
-      return [];
-    } else {
-      return []; // Ignore if proposalNum is less than minProposal
+    if (proposalNum > this.minProposal) {
+      return []; // Drop current packet if it's from an older proposal
     }
+
+    if (proposalNum < this.minProposal) {
+      return []; // Drop current packet if a new round has started
+    }
+
+    this.acceptAcks += 1;
+    if (this.acceptAcks > (otherServers.length + 1) / 2) {
+      // A majority has accepted the proposal
+      this.acceptAcks = 0; // Reset the counter
+
+      // Simulate a crash after a majority has accepted the proposal
+      this.simulateCrashAndRestart(otherServers, 5000); // Restart after 5 seconds
+
+      return []; // No need to return packets if a value is accepted by a majority
+    }
+
+    return []; // Return an empty array if the condition is not met
   }
-  
+
+  simulateCrashAndRestart(servers, delay = 5000) {
+    this.simulateCrash();
+    setTimeout(() => this.restartProtocol(servers, this.generateNewValue()), delay);
+  }
+
+  // simulate a server crash
+  simulateCrash() {
+    this.down = true; // Mark the server as down
+    // Reset state variables except for proposalNum
+    this.x = null;
+    this.y = null;
+    this.acceptedValue = null;
+    this.acceptedProp = null;
+    this.prepareAcks = 0;
+    this.acceptAcks = 0;
+    this.minAcceptedProp = null;
+    this.minAcceptedValue = null;
+    // Do not reset this.proposalNum and this.minProposal to retain the proposal number
+  }
+
+  // restart the protocol after a crash
+  restartProtocol(otherServers, newValue) {
+    if (this.down) {
+      this.down = false; 
+      this.proposalValue = newValue; 
+      this.prepareAcks = 0;
+      this.acceptAcks = 0;
+      return this.broadcastPrepare(otherServers, newValue);
+    }
+    return []; 
+  }
+
+  generateNewValue() {
+    return parseInt(this.proposalValue, 10) + 1;
+  }
 
   receivePacket(servers, packet) {
     switch (packet.type) {
@@ -169,6 +216,7 @@ class Server {
         break;
     }
   }
+
 };
 
 export { Server };
