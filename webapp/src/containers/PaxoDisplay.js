@@ -13,7 +13,7 @@ const PaxosDisplay = ({ className }) => {
     <div className={`paxos-display-container ${className}`}>
       <div className='server-circle-container'>
         {paxosState.servers.map((server) => {
-          return <Server key={server.id} server={server} />
+          return <Server key={server.id} id={server.id} />
         })}
         {paxosState.packets.map((packet) => {
           return <Packet key={packet.id} packet={packet} />

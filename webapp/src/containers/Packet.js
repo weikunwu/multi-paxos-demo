@@ -3,7 +3,10 @@ import React, {
   useEffect,
 } from 'react';
 
-import { Button } from 'antd';
+import {
+  Button,
+  Tooltip,
+} from 'antd';
 import styled from 'styled-components';
 
 import {
@@ -16,10 +19,20 @@ import {
   SERVER_SIZE,
 } from '../Constants';
 import { PaxosContext } from '../PaxosContext';
+import PacketTooltip from './PacketTooltip';
 
 const offset = (SERVER_SIZE - PACKET_SIZE) / 2;
 const Packet = ({ className, packet }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
+  let buttonText = "";
+
+  if (packet.type === "ACK_PREPARE") {
+    buttonText = "A"
+  } else if (packet.type === "ACK_ACCEPT") {
+    buttonText = "OK"
+  } else if (packet.type === "ACCEPT") {
+    buttonText = packet.value;
+  }
 
   const from = paxosState.servers.find(s => s.id === packet.from);
   const to = paxosState.servers.find(s => s.id === packet.to);
@@ -34,7 +47,7 @@ const Packet = ({ className, packet }) => {
         const newPackets = prevState.packets.filter(p => p.id !== packet.id);
         const curPacket = prevState.packets.find(p => p.id === packet.id);
 
-        if (curPacket.drop) {
+        if (!curPacket || curPacket.drop) {
           return {
             ...prevState,
             packets: newPackets
@@ -42,6 +55,14 @@ const Packet = ({ className, packet }) => {
         }
 
         const receiver = prevState.servers.find(s => s.id === curPacket.to);
+
+        if (receiver.down) {
+          return {
+            ...prevState,
+            packets: newPackets
+          }
+        }
+
         const otherServers = prevState.servers.filter(s => s.id !== curPacket.to).map(s => s.id);
         const packets = [
           ...newPackets,
@@ -71,15 +92,37 @@ const Packet = ({ className, packet }) => {
       api.pause()
     }
   }, [paxosState.on])
+
+  const handleDrop = () => {
+    setPaxosState((prevState) => {
+      const newPackets = prevState.packets.filter(p => p.id !== packet.id);
+
+      return {
+        ...paxosState,
+        packets: newPackets
+      }
+    });
+  };
+
   return (
     <div className={`packet-container ${className}`}>
       <animated.div
         style={spring}
       >
-        <Button
-          className='packet'
-          shape="circle"
-        >{packet.time}</Button>
+        <Tooltip
+          overlayInnerStyle={{
+            width: '400px',
+          }}
+          title={<PacketTooltip
+            packet={packet}
+            handleDrop={handleDrop}
+          />}
+        >
+          <Button
+            className={`packet ${(packet.type === "ACK_PREPARE" || packet.type === "ACK_ACCEPT") && "green"}`}
+            shape="circle"
+          >{buttonText}</Button>
+        </Tooltip>
       </animated.div>
     </div>
   )
@@ -92,5 +135,8 @@ export default styled(Packet)`
     width: ${PACKET_SIZE}px;
     height: ${PACKET_SIZE}px;
     border: 1px solid black;
+  }
+  .packet.green {
+    background-color: green
   }
 `;
