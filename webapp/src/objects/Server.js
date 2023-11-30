@@ -3,7 +3,7 @@ import { Packet } from './Packet';
 class Server {
   constructor(name) {
     this.id = name; // server name
-    this.down = null; // whether server is down  type=boolean
+    this.down = false; // whether server is down
     this.x = null; // server x position
     this.y = null; // server y position
     this.acceptedValue = null; // server accepted value
