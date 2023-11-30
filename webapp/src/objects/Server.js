@@ -12,18 +12,23 @@ class Server {
     this.proposalNum = null; // proposer proposal number
     this.proposalValue = null; // proposer proposal value
     this.numOfServers = 0;
-    this.prepareAcks = 0; // initialize prepare acknowledgments counter
-    this.acceptAcks = 0; // initialize accept acknowledgments counter
-    this.servers = []; // store the list of serverIds
+
+    // The server itself is counted as one vote
+    this.prepareAcks = 1; // initialize prepare acknowledgments counter
+    this.acceptAcks = 1; // initialize accept acknowledgments counter
 
   }
 
-  broadcastPrepare(servers, value) {
+  broadcastPrepare(otherServers, value) {
     const proposalNum = Date.now();
     this.proposalNum = proposalNum;
     this.proposalValue = value;
 
-    return servers.map((server) => {
+    // Deliver the prepare packet at the proposer itself
+    this.minProposal = proposalNum;
+
+    
+    return otherServers.map((server) => {
       return this.prepare(server, proposalNum)
     })
   }
@@ -35,8 +40,8 @@ class Server {
     return packet;
   }
 
-  broadcastAccept(servers, proposalNum) {
-    return servers.map((server) => {
+  broadcastAccept(otherServers, proposalNum) {
+    return otherServers.map((server) => {
       return this.acceptRequest(server, proposalNum)
     })
   }
@@ -71,7 +76,7 @@ class Server {
     const proposalValue = packetIn.value;
     const packetOut = new Packet(this.id, packetIn.from);
     packetOut.type = 'ACK_ACCEPT';
-    if (this.minProposal < proposalNum) {
+    if (proposalNum >= this.minProposal) {
       // Update server min proposal num
       this.minProposal = proposalNum;
       // Update server accepted proposal num
@@ -88,22 +93,22 @@ class Server {
     }
   }
 
-  processAckPrepare(servers, packet) {
+  processAckPrepare(otherServers, packet) {
     this.prepareAcks += 1;
-    if (this.prepareAcks > this.numOfServers / 2) {
-      this.broadcastAccept(this.servers, packet.proposalNum, this.value);
-      this.prepareAcks = 0;
-      return [packet]; // Return the acknowledged prepare packet
+    if (this.prepareAcks > (otherServers.length + 1) / 2) {
+      const packets = this.broadcastAccept(otherServers, packet.proposalNum, this.proposalValue);
+      this.prepareAcks = 1;
+      return packets; // Return Accept packets to broadcast
     }
     return []; // Return an empty array if the condition is not met
   }
 
-  processAckAccept(servers, packet) {
+  processAckAccept(otherServers, packet) {
     this.acceptAcks += 1;
-    if (this.acceptAcks > this.numOfServers / 2) {
-      this.acceptAcks = 0;
+    if (this.acceptAcks > (otherServers.length + 1) / 2) {
+      this.acceptAcks = 1;
       this.acceptedValue = packet.value;
-      return [packet]; // Return the acknowledged accept packet
+      return []; // No need to return packets if a value is accepted by a majority
     }
     return []; // Return an empty array if the condition is not met
   }
