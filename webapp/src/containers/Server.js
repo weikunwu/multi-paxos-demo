@@ -23,7 +23,7 @@ const Server = ({ className, id }) => {
         ...proposer.broadcastPrepare(receivers, val)
       ];
 
-      const newServers = paxosState.servers.map((s) => {
+      const newServers = prevState.servers.map((s) => {
         if (s.id === id) {
           return proposer;
         } else {
@@ -40,7 +40,21 @@ const Server = ({ className, id }) => {
   }
 
   const handleShutDown = () => {
+    setPaxosState((prevState) => {
+      const newServers = prevState.servers.map((s) => {
+        if (s.id === id) {
+          s.down = !s.down
+          return s;
+        } else {
+          return s;
+        }
+      })
 
+      return {
+        ...prevState,
+        servers: newServers,
+      }
+    })
   }
   return (
     <div className={`server-container ${className}`}>
@@ -57,7 +71,7 @@ const Server = ({ className, id }) => {
       >
 
         <Button
-          className='server'
+          className={`server ${server.down ? "down" : "up"}`}
           size='large'
           shape="circle"
           style={{
@@ -74,7 +88,16 @@ export default styled(Server)`
   .server {
     width: ${SERVER_SIZE}px;
     height: ${SERVER_SIZE}px;
-    border: 3px solid black;
     z-index: 2;
+  }
+  
+  .server.up{
+    border: 3px solid black;
+  }
+
+  .server.down{
+    border-colr: #d9d9d9;
+    background-color: #e3e8e7;
+    color: rgba(0, 0, 0, 0.25);
   }
 `;

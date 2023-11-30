@@ -22,7 +22,9 @@ const Packet = ({ className, packet }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
   let buttonText = "";
 
-  if (packet.type === "ACK_PREPARE" || packet.type === "ACK_ACCEPT") {
+  if (packet.type === "ACK_PREPARE") {
+    buttonText = "A"
+  } else if (packet.type === "ACK_ACCEPT") {
     buttonText = "OK"
   } else if (packet.type === "ACCEPT") {
     buttonText = packet.value;
@@ -49,6 +51,14 @@ const Packet = ({ className, packet }) => {
         }
 
         const receiver = prevState.servers.find(s => s.id === curPacket.to);
+
+        if (receiver.down) {
+          return {
+            ...prevState,
+            packets: newPackets
+          }
+        }
+
         const otherServers = prevState.servers.filter(s => s.id !== curPacket.to).map(s => s.id);
         const packets = [
           ...newPackets,

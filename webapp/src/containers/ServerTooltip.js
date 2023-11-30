@@ -26,7 +26,7 @@ const ServerTooltip = ({ className, server, handlePropose, handleShutDown }) => 
           /></div>,
           <Button
             type="primary"
-            disabled={!val}
+            disabled={server.down || !val}
             onClick={() => {
               if (!server.down) {
                 handlePropose(val)
