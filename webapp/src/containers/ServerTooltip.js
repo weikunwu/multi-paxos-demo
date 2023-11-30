@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   Button,
@@ -9,16 +9,28 @@ import {
 import styled from 'styled-components';
 
 const ServerTooltip = ({ className, server, handlePropose, handleShutDown }) => {
+
+  const [val, setVal] = useState()
+
   return (
     <div id='tooltip-container' className={className}>
       <Card
         actions={[
-          <Input />,
+          <div style={{
+            margin: "0 10px 0 10px"
+          }}><Input 
+          value={val}
+          onChange={(e) => {
+            setVal(e.target.value)
+          }}
+          /></div>,
           <Button
             type="primary"
+            disabled={!val}
             onClick={() => {
               if (!server.down) {
-                handlePropose()
+                handlePropose(val)
+                setVal()
               }
             }}
           >Propose</Button>,

@@ -10,19 +10,30 @@ import { SERVER_SIZE } from '../Constants';
 import { PaxosContext } from '../PaxosContext';
 import ServerTooltip from './ServerTooltip';
 
-const Server = ({ className, server }) => {
+const Server = ({ className, id }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
+  const server = paxosState.servers.find(s => s.id === id);
 
-  const propose = () => {
+  const propose = (val) => {
     const receivers = paxosState.servers.filter(s => s.id !== server.id).map(s => s.id);
+    const proposer = paxosState.servers.find(s => s.id === id);
     setPaxosState((prevState) => {
       const newPackets = [
         ...prevState.packets,
-        ...server.broadcastPrepare(receivers, 0)
+        ...proposer.broadcastPrepare(receivers, val)
       ];
+
+      const newServers = paxosState.servers.map((s) => {
+        if (s.id === id) {
+          return proposer;
+        } else {
+          return s;
+        }
+      })
 
       return {
         ...prevState,
+        servers: newServers,
         packets: newPackets
       }
     })

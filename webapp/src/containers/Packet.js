@@ -20,6 +20,13 @@ import { PaxosContext } from '../PaxosContext';
 const offset = (SERVER_SIZE - PACKET_SIZE) / 2;
 const Packet = ({ className, packet }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
+  let buttonText = "";
+
+  if (packet.type === "ACK_PREPARE" || packet.type === "ACK_ACCEPT") {
+    buttonText = "OK"
+  } else if (packet.type === "ACCEPT") {
+    buttonText = packet.value;
+  }
 
   const from = paxosState.servers.find(s => s.id === packet.from);
   const to = paxosState.servers.find(s => s.id === packet.to);
@@ -77,9 +84,9 @@ const Packet = ({ className, packet }) => {
         style={spring}
       >
         <Button
-          className='packet'
+          className={`packet ${(packet.type === "ACK_PREPARE" || packet.type === "ACK_ACCEPT") && "green"}`}
           shape="circle"
-        >{packet.time}</Button>
+        >{buttonText}</Button>
       </animated.div>
     </div>
   )
@@ -92,5 +99,8 @@ export default styled(Packet)`
     width: ${PACKET_SIZE}px;
     height: ${PACKET_SIZE}px;
     border: 1px solid black;
+  }
+  .packet.green {
+    background-color: green
   }
 `;
