@@ -13,7 +13,7 @@ const PaxosProvider = ({ children }) => {
     speed: 2, // Speed must be between 1 - 5, which determine the speed of simulation
     dropRate: 0, // Possibility that a message is dropped
     servers: [
-      new Server('1'),
+      new Server('Server-1'),
     ], // A list of server objects
     packets: [] // A list of packets objects
   })
