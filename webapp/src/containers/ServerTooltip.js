@@ -15,15 +15,16 @@ const ServerTooltip = ({ className, server, handlePropose, handleShutDown }) => 
   return (
     <div id='tooltip-container' className={className}>
       <Card
+        size='small'
         actions={[
           <div style={{
             margin: "0 10px 0 10px"
-          }}><Input 
-          value={val}
-          onChange={(e) => {
-            setVal(e.target.value)
-          }}
-          /></div>,
+          }}><Input
+              value={val}
+              onChange={(e) => {
+                setVal(e.target.value)
+              }}
+            /></div>,
           <Button
             type="primary"
             disabled={server.down || !val}
@@ -47,6 +48,9 @@ const ServerTooltip = ({ className, server, handlePropose, handleShutDown }) => 
           bordered
           size={'small'}
           column={1}
+          labelStyle={{
+            width: "20%"
+          }}
           items={[
             'id',
             'down',

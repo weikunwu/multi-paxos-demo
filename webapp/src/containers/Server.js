@@ -77,7 +77,7 @@ const Server = ({ className, id }) => {
           style={{
             left: `${server.x || 200}px`,
             top: `${server.y || 200}px`
-          }}>{server.id}</Button>
+          }}>{server.acceptedValue}</Button>
       </Tooltip>
     </div>
   )
