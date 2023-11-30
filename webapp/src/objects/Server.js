@@ -11,12 +11,12 @@ class Server {
     this.minProposal = null; // min proposal number
     this.proposalNum = null; // proposer proposal number
     this.proposalValue = null; // proposer proposal value
-    this.numOfServers = 0;
 
-    // The server itself is counted as one vote
-    this.prepareAcks = 1; // initialize prepare acknowledgments counter
-    this.acceptAcks = 1; // initialize accept acknowledgments counter
+    this.prepareAcks = 0; // initialize prepare acknowledgments counter
+    this.acceptAcks = 0; // initialize accept acknowledgments counter
 
+    this.minAcceptedProp = null;
+    this.minAcceptedValue = null;
   }
 
   broadcastPrepare(otherServers, value) {
@@ -27,6 +27,10 @@ class Server {
     // Deliver the prepare packet at the proposer itself
     this.minProposal = proposalNum;
 
+    // Deliver the ackPrepare packet at the proposer itself
+    this.prepareAcks = 1;
+    this.minAcceptedProp = this.acceptedProp;
+    this.minAcceptedValue = this.acceptedValue;
 
     return otherServers.map((server) => {
       return this.prepare(server, proposalNum)
@@ -40,17 +44,24 @@ class Server {
     return packet;
   }
 
-  broadcastAccept(otherServers, proposalNum) {
+  broadcastAccept(otherServers, proposalNum, proposalValue) {
+    // Deliver the accept packet at the proposer itself
+    this.acceptedProp = proposalNum;
+    this.acceptedValue = proposalValue;
+
+    // Deliver the ackAccept packet at the proposer itself
+    this.acceptAcks = 1;
+
     return otherServers.map((server) => {
-      return this.acceptRequest(server, proposalNum)
+      return this.acceptRequest(server, proposalNum, proposalValue)
     })
   }
 
-  acceptRequest(server, proposalNum) {
+  acceptRequest(server, proposalNum, proposalValue) {
     const packet = new Packet(this.id, server)
     packet.type = 'ACCEPT';
     packet.proposalNum = proposalNum;
-    packet.value = this.proposalValue;
+    packet.value = proposalValue;
     return packet;
   }
 
@@ -85,7 +96,7 @@ class Server {
       this.acceptedValue = proposalValue;
       // Reply (minProposal)
       packetOut.proposalNum = proposalNum;
-      packetOut.value = proposalValue;
+      packetOut.minProposal = proposalNum;
       return [packetOut];
     } else {
       // n < minProposal: Ignore accept request
@@ -96,29 +107,53 @@ class Server {
   processAckPrepare(otherServers, packet) {
     const proposalNum = packet.proposalNum;
     if (proposalNum > this.minProposal) {
-      // Already have larger proposal number, drop current packet
+      // Already have other proposer with larger proposal number, drop current packet
       return []
     }
 
     if (proposalNum < this.minProposal) {
-      // Already started a new round, drop current packet
+      // Already started a new round with larger proposal number, drop current packet
       return []
     }
 
     this.prepareAcks += 1;
+
+    if (packet.acceptedProp) {
+      if (this.minAcceptedProp) {
+        if (packet.acceptedProp > this.minAcceptedProp) {
+          this.minAcceptedProp = packet.acceptedProp;
+          this.minAcceptedValue = packet.acceptedValue;
+        }
+      } else {
+        this.minAcceptedProp = packet.acceptedProp;
+        this.minAcceptedValue = packet.acceptedValue;
+      }
+    }
+
+
     if (this.prepareAcks > (otherServers.length + 1) / 2) {
-      const packets = this.broadcastAccept(otherServers, packet.proposalNum, this.proposalValue);
-      this.prepareAcks = 1;
+      const packets = this.broadcastAccept(otherServers, packet.proposalNum, this.minAcceptedValue || this.proposalValue);
+      this.prepareAcks = 0;
       return packets; // Return Accept packets to broadcast
     }
     return []; // Return an empty array if the condition is not met
   }
 
   processAckAccept(otherServers, packet) {
+    const proposalNum = packet.proposalNum;
+    if (proposalNum > this.minProposal) {
+      // Already have other proposer with larger proposal number, drop current packet
+      return []
+    }
+
+    if (proposalNum < this.minProposal) {
+      // Already started a new round with larger proposal number, drop current packet
+      return []
+    }
+
     this.acceptAcks += 1;
     if (this.acceptAcks > (otherServers.length + 1) / 2) {
-      this.acceptAcks = 1;
-      this.acceptedValue = packet.value;
+      this.acceptAcks = 0;
       return []; // No need to return packets if a value is accepted by a majority
     }
     return []; // Return an empty array if the condition is not met
