@@ -27,7 +27,7 @@ class Server {
     // Deliver the prepare packet at the proposer itself
     this.minProposal = proposalNum;
 
-    
+
     return otherServers.map((server) => {
       return this.prepare(server, proposalNum)
     })
@@ -94,6 +94,17 @@ class Server {
   }
 
   processAckPrepare(otherServers, packet) {
+    const proposalNum = packet.proposalNum;
+    if (proposalNum > this.minProposal) {
+      // Already have larger proposal number, drop current packet
+      return []
+    }
+
+    if (proposalNum < this.minProposal) {
+      // Already started a new round, drop current packet
+      return []
+    }
+
     this.prepareAcks += 1;
     if (this.prepareAcks > (otherServers.length + 1) / 2) {
       const packets = this.broadcastAccept(otherServers, packet.proposalNum, this.proposalValue);
