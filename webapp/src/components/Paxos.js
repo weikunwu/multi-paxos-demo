@@ -5,7 +5,6 @@ import styled from 'styled-components';
 
 import PaxosDisplay from '../containers/PaxoDisplay';
 import PaxosSetting from '../containers/PaxosSetting';
-import { Server } from '../objects/Server';
 import { PaxosContext } from '../PaxosContext';
 
 const Paxos = ({ className }) => {
@@ -21,9 +20,10 @@ const Paxos = ({ className }) => {
   const handleTabChange = (activeTab) => {
     setPaxosState({
       ...paxosState,
+      on: false,
       tab: activeTab,
       scenario: 'fault1',
-      servers: [new Server("1")],
+      servers: [],
       packets: []
     });
   }

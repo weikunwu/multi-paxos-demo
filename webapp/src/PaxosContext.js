@@ -3,8 +3,6 @@ import {
   useState,
 } from 'react';
 
-import { Server } from './objects/Server';
-
 const PaxosContext = createContext();
 
 const PaxosProvider = ({ children }) => {
@@ -14,9 +12,7 @@ const PaxosProvider = ({ children }) => {
     dropRate: 0, // Possibility that a message is dropped
     tab: 'playground',
     scenario: 'fault1',
-    servers: [
-      new Server('1'),
-    ], // A list of server objects
+    servers: [], // A list of server objects
     packets: [] // A list of packets objects
   })
 
