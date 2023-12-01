@@ -15,7 +15,7 @@ import { Server } from '../objects/Server';
 import { PaxosContext } from '../PaxosContext';
 import LabelIconSlider from './LabelIconSlider';
 
-const PaxosSetting = ({ className }) => {
+const PaxosSetting = ({ className, faultMode }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
 
   const handleStartButton = () => {
@@ -62,16 +62,20 @@ const PaxosSetting = ({ className }) => {
 
   return (
     <div className={`paxos-setting-container ${className}`} >
+      {faultMode ?
+        <Button>Scenario</Button>
+        :
+        <Button
+          className='add-button'
+          type='primary'
+          disabled={
+            paxosState.servers.length >= 10 || paxosState.on || paxosState.packets.length > 0
+          } onClick={handleAddServer}>Add Node</Button>
+      }
       <Button
         className='start-button'
         onClick={handleStartButton}
       >{paxosState.on ? 'Pause' : 'Start'}</Button>
-      <Button
-        className='add-button'
-        type='primary'
-        disabled={
-          paxosState.servers.length >= 10 || paxosState.on || paxosState.packets.length > 0
-        } onClick={handleAddServer}>Add Node</Button>
       <LabelIconSlider
         leftIcon={<GiTurtleShell />}
         rightIcon={<GiRabbit />}
@@ -80,21 +84,30 @@ const PaxosSetting = ({ className }) => {
         max={5}
         handleChange={handleSpeedChange}
       />
-      <LabelIconSlider
-        leftIcon={<AiOutlineCheck />}
-        rightIcon={<AiOutlineClose />}
-        label='Message Drop Rate'
-        min={0}
-        max={(100)}
-        step={10}
-        handleChange={handleDropRateChange}
-      />
+
+      {!faultMode &&
+        <LabelIconSlider
+          leftIcon={<AiOutlineCheck />}
+          rightIcon={<AiOutlineClose />}
+          label='Message Drop Rate'
+          min={0}
+          max={(100)}
+          step={10}
+          handleChange={handleDropRateChange}
+        />
+      }
     </div>
   )
 }
 
 export default styled(PaxosSetting)`
-  .start-button, .add-button {
+
+  #mode-setting {
+    display: flex;
+    flex-direction: column;
+  }
+
+  button {
     width: 100%;
     margin: 10px;
   }
