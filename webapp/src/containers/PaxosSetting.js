@@ -216,6 +216,10 @@ const failure6 = async () => {
             className='add-button'
             type='primary'
             onClick={failure1}>Same Proposal Number</Button>
+          <Button
+            className='add-button'
+            type='primary'
+            onClick={failure6}>Not Updating MinProposal</Button>
         </div>
         :
         <Button
@@ -262,6 +266,13 @@ const failure6 = async () => {
 }
 
 export default styled(PaxosSetting)`
+
+  #mode-setting {
+    display: flex;
+    flex-direction: column;
+  }
+
+  button {
 
   #mode-setting {
     display: flex;
