@@ -98,31 +98,124 @@ const failure6 = async () => {
       dropRate: 0.01 * dropRate
     })
   }
-  const handleAddServer = () => {
-    const circleRadius = 200; // radius of the circle
-    // const offset = circleContainer.offsetWidth / 2 - 10; // Center offset for the node
-    const offset = 200;
-    const newServers = [...paxosState.servers]
-    newServers.push(new Server(`${paxosState.servers.length + 1}`));
-    const totalServers = newServers.length;
-    const angle = 2 * Math.PI / totalServers;
 
-    newServers.forEach((server, i) => {
-      const theta = angle * (i + 1); // new angle for all nodes
-      server.x = offset + circleRadius * Math.cos(theta) - 10;
-      server.y = offset + circleRadius * Math.sin(theta) - 10;
-    })
+  function timeout(delay) {
+    return new Promise(res => setTimeout(res, delay));
+  }
 
-    setPaxosState({
-      ...paxosState,
-      servers: newServers,
+  const handleFailure1 = () => {
+    setPaxosState((prevState) => {
+      const newPackets = [
+        ...prevState.packets,
+        ...prevState.servers[0].broadcastPreparFailure1(['2', '3', '4'], 10),
+        ...prevState.servers[2].broadcastPreparFailure1(['1', '2', '4'], 20)
+      ];
+      return {
+        ...prevState,
+        packets: newPackets,
+        on: true
+      }
     })
   }
+
+  const handleFailure5 = () => {
+    const interval = setInterval(async () => {
+      setPaxosState((prevState) => {
+        const newPackets = [
+          ...prevState.packets,
+          ...paxosState.servers[0].broadcastPrepare(['3', '4'], 1)
+        ];
+        console.log(newPackets);
+        return {
+          ...prevState,
+          packets: newPackets,
+          on: true
+        }
+      })
+      await timeout(3000);
+      setPaxosState((prevState) => {
+        const newPackets = [
+          ...prevState.packets,
+          ...paxosState.servers[1].broadcastPrepare(['3', '4'], 1)
+        ];
+        return {
+          ...prevState,
+          packets: newPackets,
+          on: true
+        }
+      })
+    }, 5000);
+  }
+
+  const failure1 = () => {
+    for (let i = 0; i < 4; i++) {
+      handleAddServer();
+    }
+    setPaxosState((prevState) => {
+      return {
+        ...prevState,
+        scenario: 'failure1'
+      }
+    })
+  }
+
+  const failure5 = () => {
+    for (let i = 0; i < 4; i++) {
+      handleAddServer();
+    }
+    setPaxosState((prevState) => {
+      return {
+        ...prevState,
+        scenario: 'failure5'
+      }
+    })
+  }
+
+  const handleAddServer = () => {
+    setPaxosState(prevState => {
+      // Clone the current array of servers
+      const newServers = [...prevState.servers];
+
+      // Create a new unique identifier for the new server
+      const newServerId = `${newServers.length + 1}`;
+
+      // Create a new Server instance with the unique identifier
+      const newServer = new Server(newServerId);
+
+      // Calculate position for the new server
+      const circleRadius = 200; // Radius of the circle
+      const offset = 200; // Center offset for the node
+      const totalServers = newServers.length + 1; // Include the new server in count
+      const angle = 2 * Math.PI / totalServers; // Angle for positioning servers
+
+      // Position the new server and update positions for existing servers
+      newServers.push(newServer);
+      newServers.forEach((server, i) => {
+        const theta = angle * (i + 1); // New angle for all nodes
+        server.x = offset + circleRadius * Math.cos(theta) - 10;
+        server.y = offset + circleRadius * Math.sin(theta) - 10;
+      });
+
+      // Return the updated state
+      return {
+        ...prevState,
+        servers: newServers,
+      };
+    });
+  };
 
   return (
     <div className={`paxos-setting-container ${className}`} >
       {faultMode ?
         <div>
+          <Button
+            className='add-button'
+            type='primary'
+            onClick={failure5}>Continous Prepare Loop</Button>
+          <Button
+            className='add-button'
+            type='primary'
+            onClick={failure1}>Same Proposal Number</Button>
           <Button
             className='add-button'
             type='primary'
@@ -138,7 +231,16 @@ const failure6 = async () => {
       }
       <Button
         className='start-button'
-        onClick={handleStartButton}
+        onClick={() => {
+          if (paxosState.scenario === "failure5") {
+            handleFailure5();
+          } else if (paxosState.scenario === "failure1") {
+            handleFailure1();
+          } else {
+            handleStartButton();
+          }
+
+        }}
       >{paxosState.on ? 'Pause' : 'Start'}</Button>
       <LabelIconSlider
         leftIcon={<GiTurtleShell />}
@@ -164,6 +266,13 @@ const failure6 = async () => {
 }
 
 export default styled(PaxosSetting)`
+
+  #mode-setting {
+    display: flex;
+    flex-direction: column;
+  }
+
+  button {
 
   #mode-setting {
     display: flex;
