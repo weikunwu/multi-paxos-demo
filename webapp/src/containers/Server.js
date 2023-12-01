@@ -18,9 +18,16 @@ const Server = ({ className, id }) => {
     const receivers = paxosState.servers.filter(s => s.id !== server.id).map(s => s.id);
     const proposer = paxosState.servers.find(s => s.id === id);
     setPaxosState((prevState) => {
+      const packets = proposer.broadcastPrepare(receivers, val).map(p => {
+        const newPacket = {
+          ...p,
+          drop: Math.random() < prevState.dropRate
+        }
+        return newPacket;
+      });
       const newPackets = [
         ...prevState.packets,
-        ...proposer.broadcastPrepare(receivers, val)
+        ...packets
       ];
 
       const newServers = prevState.servers.map((s) => {

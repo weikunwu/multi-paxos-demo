@@ -39,7 +39,7 @@ const Packet = ({ className, packet }) => {
 
   const [spring, api] = useSpring(() => ({
     from: { x: from.x + offset, y: from.y + offset },
-    to: { x: to.x + offset, y: to.y + offset },
+    to: { x: (!packet.drop ? to.x : (to.x + from.x) / 2) + offset, y: (!packet.drop ? to.y : (to.y + from.y) / 2) + offset },
     config: { duration: Math.sqrt((from.x - to.x) ** 2 + (from.y - to.y) ** 2) / paxosState.speed * 20 },
     onRest: () => {
 

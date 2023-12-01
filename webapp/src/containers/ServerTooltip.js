@@ -67,19 +67,6 @@ const ServerTooltip = ({ className, server, handlePropose, handleShutDown }) => 
           })}
         />
       </Card>
-      {/* <Input />
-      <Button
-        type="primary"
-        onClick={() => {
-          if (!serverDown) {
-            handlePropose()
-          }
-        }}
-      >Propose</Button>
-      <Button
-        type="primary"
-        onClick={handleShutDown}
-        danger>{serverDown ? 'Resume' : 'Shut Down'}</Button> */}
     </div>
   )
 }
