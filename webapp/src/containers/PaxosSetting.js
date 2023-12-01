@@ -24,6 +24,14 @@ const PaxosSetting = ({ className, faultMode }) => {
   }
 
   const failure6 = async () => {
+    setPaxosState((prevState) => {
+      return {
+        ...prevState,
+        servers: [],
+        packets: []
+      }
+    })
+
     const newServers = [];
     for (let i = 0; i < 5; i++) {
       newServers.push(new Server6(`${i + 1}`));
@@ -98,36 +106,43 @@ const PaxosSetting = ({ className, faultMode }) => {
     })
   }
 
-  const handleFailure5 = () => {
-    const interval = setInterval(async () => {
-      setPaxosState((prevState) => {
-        const newPackets = [
-          ...prevState.packets,
-          ...paxosState.servers[0].broadcastPrepare(['3', '4'], 1)
-        ];
-        console.log(newPackets);
-        return {
-          ...prevState,
-          packets: newPackets,
-          on: true
-        }
-      })
-      await timeout(3000);
-      setPaxosState((prevState) => {
-        const newPackets = [
-          ...prevState.packets,
-          ...paxosState.servers[1].broadcastPrepare(['3', '4'], 1)
-        ];
-        return {
-          ...prevState,
-          packets: newPackets,
-          on: true
-        }
-      })
-    }, 5000);
-  }
+  // const handleFailure5 = () => {
+  //   const interval = setInterval(async () => {
+  //     setPaxosState((prevState) => {
+  //       const newPackets = [
+  //         ...prevState.packets,
+  //         ...paxosState.servers[0].broadcastPrepare(['3', '4'], 1)
+  //       ];
+  //       console.log(newPackets);
+  //       return {
+  //         ...prevState,
+  //         packets: newPackets,
+  //         on: true
+  //       }
+  //     })
+  //     await timeout(3000);
+  //     setPaxosState((prevState) => {
+  //       const newPackets = [
+  //         ...prevState.packets,
+  //         ...paxosState.servers[1].broadcastPrepare(['3', '4'], 1)
+  //       ];
+  //       return {
+  //         ...prevState,
+  //         packets: newPackets,
+  //         on: true
+  //       }
+  //     })
+  //   }, 5000);
+  // }
 
   const failure1 = () => {
+    setPaxosState((prevState) => {
+      return {
+        ...prevState,
+        servers: [],
+        packets: []
+      }
+    })
     const circleRadius = 200;
     const offset = 200;
     const totalServers = 4;
@@ -214,9 +229,9 @@ const PaxosSetting = ({ className, faultMode }) => {
       <Button
         className='start-button'
         onClick={() => {
-          if (paxosState.scenario === "failure5") {
-            handleFailure5();
-          }
+          // if (paxosState.scenario === "failure5") {
+          //   handleFailure5();
+          // }
           handleStartButton();
         }}
       >{paxosState.on ? 'Pause' : 'Start'}</Button>
