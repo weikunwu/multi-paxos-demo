@@ -141,18 +141,23 @@ class Server {
 
   processAckAccept(otherServers, packet) {
     const proposalNum = packet.proposalNum;
-    if (proposalNum >= this.minProposal) {
-      this.acceptAcks += 1;
-      if (this.acceptAcks > (otherServers.length + 1) / 2) {
-        this.acceptAcks = 0;
-        // Handle the acceptance of the new value here, if necessary
-      }
-      return [];
-    } else {
-      return []; // Ignore if proposalNum is less than minProposal
+    if (proposalNum > this.minProposal) {
+      // Already have other proposer with larger proposal number, drop current packet
+      return []
     }
+
+    if (proposalNum < this.minProposal) {
+      // Already started a new round with larger proposal number, drop current packet
+      return []
+    }
+
+    this.acceptAcks += 1;
+    if (this.acceptAcks > (otherServers.length + 1) / 2) {
+      this.acceptAcks = 0;
+      return []; // No need to return packets if a value is accepted by a majority
+    }
+    return []; // Return an empty array if the condition is not met
   }
-  
 
   receivePacket(servers, packet) {
     switch (packet.type) {

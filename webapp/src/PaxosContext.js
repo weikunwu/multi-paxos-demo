@@ -3,7 +3,7 @@ import {
   useState,
 } from 'react';
 
-import { Server } from './objects/Server7';
+import { Server } from './objects/Server';
 
 const PaxosContext = createContext();
 

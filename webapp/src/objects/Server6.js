@@ -24,6 +24,8 @@ class Server6 {
     this.proposalNum = proposalNum;
     this.proposalValue = value;
 
+    console.log(`Server ${this.id} broadcasting prepare with proposal number ${proposalNum}`);
+
     // Deliver the prepare packet at the proposer itself
     this.minProposal = proposalNum;
 
@@ -141,6 +143,8 @@ class Server6 {
 
   processAckAccept(otherServers, packet) {
     const proposalNum = packet.proposalNum;
+    console.log(`Server ${this.id} processing ack accept for proposal number ${proposalNum}`);
+
     if (proposalNum > this.minProposal) {
       // Already have other proposer with larger proposal number, drop current packet
       return []

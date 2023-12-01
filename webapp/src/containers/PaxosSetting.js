@@ -11,7 +11,7 @@ import {
 } from 'react-icons/gi';
 import styled from 'styled-components';
 
-import { Server } from '../objects/Server7';
+import { Server } from '../objects/Server';
 import { Server6 } from '../objects/Server6';
 import { PaxosContext } from '../PaxosContext';
 import LabelIconSlider from './LabelIconSlider';
@@ -28,6 +28,7 @@ const PaxosSetting = ({ className }) => {
       ...paxosState,
       servers: newServers,
     });
+
   };
 
   const handleStartButton = () => {
@@ -104,7 +105,8 @@ const PaxosSetting = ({ className }) => {
       <Button
         className='add-button'
         type='primary'
-        onClick={failure6}>Failure 6</Button>
+        onClick={failure6}
+      >Failure 6</Button>
     </div>
   )
 }
