@@ -157,10 +157,6 @@ const PaxosSetting = ({ className, faultMode }) => {
             className='add-button'
             type='primary'
             onClick={failure1}>Same Proposal Number</Button>
-          <Button
-            className='add-button'
-            type='primary'
-            onClick={failure6}>Not Updating MinProposal</Button>
         </div>
         :
         <Button
@@ -208,13 +204,6 @@ const PaxosSetting = ({ className, faultMode }) => {
 }
 
 export default styled(PaxosSetting)`
-
-  #mode-setting {
-    display: flex;
-    flex-direction: column;
-  }
-
-  button {
 
   #mode-setting {
     display: flex;
