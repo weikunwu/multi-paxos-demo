@@ -12,70 +12,11 @@ import {
 import styled from 'styled-components';
 
 import { Server } from '../objects/Server';
-import { Server6 } from '../objects/Server6';
 import { PaxosContext } from '../PaxosContext';
 import LabelIconSlider from './LabelIconSlider';
 
 const PaxosSetting = ({ className, faultMode }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
-
-function timeout(delay) {
-  return new Promise(res => setTimeout(res, delay));
-}
-
-const failure6 = async () => {
-  handleStartButton();
-
-  const newServers = [];
-  for (let i = 0; i < 5; i++) {
-    newServers.push(new Server6(`${i + 1}`));
-  }
-
-  const circleRadius = 200; 
-  const offset = 200; 
-  const totalServers = newServers.length;
-  const angle = 2 * Math.PI / totalServers;
-
-  newServers.forEach((server, i) => {
-    const theta = angle * (i + 1); 
-    server.x = offset + circleRadius * Math.cos(theta) - 10;
-    server.y = offset + circleRadius * Math.sin(theta) - 10;
-  });
-
-  await setPaxosState((prevState) => ({
-    ...prevState,
-    servers: newServers
-  }));
-
-  await timeout(0);
-
-  setPaxosState((prevState) => {
-    const updatedServers = prevState.servers;
-    const newPackets = [
-      ...prevState.packets,
-      ...updatedServers[0].broadcastPrepare(['2', '3'], 20),
-    ];
-
-    return {
-      ...prevState,
-      packets: newPackets
-    };
-  });
-
-  await timeout(4900);
-
-  setPaxosState((prevState) => {
-    const updatedServers = prevState.servers;
-    const additionalPackets = [
-      ...updatedServers[4].broadcastPrepare(['1', '3'], 10),
-    ];
-
-    return {
-      ...prevState,
-      packets: [...prevState.packets, ...additionalPackets]
-    };
-  });
-};
 
   const handleStartButton = () => {
     const cur = paxosState.on;
@@ -250,6 +191,7 @@ const failure6 = async () => {
         max={5}
         handleChange={handleSpeedChange}
       />
+
       {!faultMode &&
         <LabelIconSlider
           leftIcon={<AiOutlineCheck />}
