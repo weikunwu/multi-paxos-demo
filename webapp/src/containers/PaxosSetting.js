@@ -226,7 +226,7 @@ const PaxosSetting = ({ className, faultMode }) => {
         <>
           <Button
             type='primary'
-            onClick={failure5}>Same Proposal Number</Button>
+            onClick={failure5}>Continuous Prepare Loop</Button>
           <Button
             type='primary'
             onClick={failure1}>Same Proposal Number</Button>
