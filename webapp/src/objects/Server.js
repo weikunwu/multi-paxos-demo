@@ -19,9 +19,29 @@ class Server {
     this.minAcceptedValue = null;
   }
 
+  static nextProposalNum = 1;
+
+  broadcastPreparFailure1(otherServers, value) {
+    const proposalNum = Server.nextProposalNum;
+    this.proposalNum = proposalNum;
+    this.proposalValue = value;
+    // Deliver the prepare packet at the proposer itself
+    this.minProposal = proposalNum;
+    // Deliver the ackPrepare packet at the proposer itself
+    this.prepareAcks = 1;
+    this.minAcceptedProp = this.acceptedProp;
+    this.minAcceptedValue = this.acceptedValue;
+    return otherServers.map((server) => {
+      return this.prepare(server, proposalNum)
+    });
+  }
+
+
+
+
   broadcastPrepare(otherServers, value) {
     const proposalNum = Date.now();
-    this.proposalNum = proposalNum;
+    this.proposalNum = 1;
     this.proposalValue = value;
 
     // Deliver the prepare packet at the proposer itself

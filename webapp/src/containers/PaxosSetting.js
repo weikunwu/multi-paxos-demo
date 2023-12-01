@@ -59,6 +59,23 @@ const PaxosSetting = ({ className }) => {
       servers: newServers,
     })
   }
+  
+  const failure1 = () => {
+      handleStartButton()
+      setPaxosState((prevState) => {
+        const newPackets = [
+          ...prevState.packets,
+          ...prevState.servers[0].broadcastPreparFailure1(['2','3','4'],10),
+          ...prevState.servers[2].broadcastPreparFailure1(['1','2','4'],20)
+        ];
+        console.log(newPackets)
+
+        return {
+          ...prevState,
+          packets:newPackets
+        }
+      })
+  }
 
   return (
     <div className={`paxos-setting-container ${className}`} >
@@ -89,12 +106,16 @@ const PaxosSetting = ({ className }) => {
         step={10}
         handleChange={handleDropRateChange}
       />
+      <Button
+        className='failure1-button'
+        type = "primary"
+        onClick={failure1}>Failure 1</Button>
     </div>
   )
 }
 
 export default styled(PaxosSetting)`
-  .start-button, .add-button {
+  .start-button, .add-button, .failure1-button {
     width: 100%;
     margin: 10px;
   }
