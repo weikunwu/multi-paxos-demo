@@ -85,6 +85,7 @@ class Server6 {
   }
 
   ackAccept(packetIn) {
+    debugger;
     const proposalNum = packetIn.proposalNum;
     const proposalValue = packetIn.value;
     const packetOut = new Packet(this.id, packetIn.from);
