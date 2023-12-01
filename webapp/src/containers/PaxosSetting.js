@@ -106,34 +106,34 @@ const PaxosSetting = ({ className, faultMode }) => {
     })
   }
 
-  // const handleFailure5 = () => {
-  //   const interval = setInterval(async () => {
-  //     setPaxosState((prevState) => {
-  //       const newPackets = [
-  //         ...prevState.packets,
-  //         ...paxosState.servers[0].broadcastPrepare(['3', '4'], 1)
-  //       ];
-  //       console.log(newPackets);
-  //       return {
-  //         ...prevState,
-  //         packets: newPackets,
-  //         on: true
-  //       }
-  //     })
-  //     await timeout(3000);
-  //     setPaxosState((prevState) => {
-  //       const newPackets = [
-  //         ...prevState.packets,
-  //         ...paxosState.servers[1].broadcastPrepare(['3', '4'], 1)
-  //       ];
-  //       return {
-  //         ...prevState,
-  //         packets: newPackets,
-  //         on: true
-  //       }
-  //     })
-  //   }, 5000);
-  // }
+  const handleFailure5 = () => {
+    const interval = setInterval(async () => {
+      setPaxosState((prevState) => {
+        const newPackets = [
+          ...prevState.packets,
+          ...paxosState.servers[0].broadcastPrepare(['4', '5'], 1)
+        ];
+        console.log(newPackets);
+        return {
+          ...prevState,
+          packets: newPackets,
+          on: true
+        }
+      })
+      await timeout(6000);
+      setPaxosState((prevState) => {
+        const newPackets = [
+          ...prevState.packets,
+          ...paxosState.servers[1].broadcastPrepare(['3', '4'], 2)
+        ];
+        return {
+          ...prevState,
+          packets: newPackets,
+          on: true
+        }
+      })
+    }, 10000);
+  }
 
   const failure1 = () => {
     setPaxosState((prevState) => {
@@ -230,9 +230,9 @@ const PaxosSetting = ({ className, faultMode }) => {
       <Button
         className='start-button'
         onClick={() => {
-          // if (paxosState.scenario === "failure5") {
-          //   handleFailure5();
-          // }
+          if (paxosState.scenario === "failure5") {
+            handleFailure5();
+          }
           handleStartButton();
         }}
       >{paxosState.on ? 'Pause' : 'Start'}</Button>
