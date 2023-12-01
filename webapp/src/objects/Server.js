@@ -12,6 +12,8 @@ class Server {
     this.proposalNum = null; // proposer proposal number
     this.proposalValue = null; // proposer proposal value
 
+    this.numOfServers = 1; // number of servers in the grid
+    
     this.prepareAcks = 0; // initialize prepare acknowledgments counter
     this.acceptAcks = 0; // initialize accept acknowledgments counter
 
@@ -148,7 +150,7 @@ class Server {
     }
 
 
-    if (this.prepareAcks > (otherServers.length + 1) / 2) {
+    if (this.prepareAcks > this.numOfServers / 2) {
       const packets = this.broadcastAccept(otherServers, packet.proposalNum, this.minAcceptedValue || this.proposalValue);
       this.prepareAcks = 0;
       return packets; // Return Accept packets to broadcast
@@ -169,7 +171,7 @@ class Server {
     }
 
     this.acceptAcks += 1;
-    if (this.acceptAcks > (otherServers.length + 1) / 2) {
+    if (this.acceptAcks > this.numOfServers / 2) {
       this.acceptAcks = 0;
       return []; // No need to return packets if a value is accepted by a majority
     }

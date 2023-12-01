@@ -98,25 +98,6 @@ const PaxosSetting = ({ className, faultMode }) => {
     })
   }
 
-  function timeout(delay) {
-    return new Promise(res => setTimeout(res, delay));
-  }
-
-  const handleFailure1 = () => {
-    setPaxosState((prevState) => {
-      const newPackets = [
-        ...prevState.packets,
-        ...prevState.servers[0].broadcastPreparFailure1(['2', '3', '4'], 10),
-        ...prevState.servers[2].broadcastPreparFailure1(['1', '2', '4'], 20)
-      ];
-      return {
-        ...prevState,
-        packets: newPackets,
-        on: true
-      }
-    })
-  }
-
   const handleFailure5 = () => {
     const interval = setInterval(async () => {
       setPaxosState((prevState) => {
@@ -147,25 +128,33 @@ const PaxosSetting = ({ className, faultMode }) => {
   }
 
   const failure1 = () => {
-    for (let i = 0; i < 4; i++) {
-      handleAddServer();
-    }
-    setPaxosState((prevState) => {
-      return {
-        ...prevState,
-        scenario: 'failure1'
-      }
-    })
-  }
+    const circleRadius = 200;
+    const offset = 200;
+    const totalServers = 4;
+    const angle = 2 * Math.PI / totalServers;
 
-  const failure5 = () => {
-    for (let i = 0; i < 4; i++) {
-      handleAddServer();
-    }
+    const newServers = new Array(totalServers).fill(null).map((_, i) => {
+      return new Server(`${i + 1}`);
+    });
+
+    newServers.forEach((server, i) => {
+      const theta = angle * (i + 1);
+      server.x = offset + circleRadius * Math.cos(theta) - 10;
+      server.y = offset + circleRadius * Math.sin(theta) - 10;
+      server.numOfServers = totalServers;
+    });
+
     setPaxosState((prevState) => {
+      const newPackets = [
+        ...prevState.packets,
+        ...newServers[0].broadcastPreparFailure1(['2', '3', '4'], 10),
+        ...newServers[2].broadcastPreparFailure1(['1', '2', '4'], 20)
+      ];
       return {
         ...prevState,
-        scenario: 'failure5'
+        scenario: 'failure1',
+        servers: newServers,
+        packets: newPackets,
       }
     })
   }
@@ -206,17 +195,14 @@ const PaxosSetting = ({ className, faultMode }) => {
   return (
     <div className={`paxos-setting-container ${className}`} >
       {faultMode ?
-        <div>
-          {/* <Button
-            type='primary'
-            onClick={failure5}>Continous Prepare Loop</Button> */}
+        <>
           <Button
             type='primary'
             onClick={failure1}>Same Proposal Number</Button>
           <Button
             type='primary'
             onClick={failure6}>Not Updating MinProposal</Button>
-        </div>
+        </>
         :
         <Button
           className='add-button'
@@ -230,12 +216,8 @@ const PaxosSetting = ({ className, faultMode }) => {
         onClick={() => {
           if (paxosState.scenario === "failure5") {
             handleFailure5();
-          } else if (paxosState.scenario === "failure1") {
-            handleFailure1();
-          } else {
-            handleStartButton();
           }
-
+          handleStartButton();
         }}
       >{paxosState.on ? 'Pause' : 'Start'}</Button>
       <LabelIconSlider
