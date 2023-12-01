@@ -106,6 +106,18 @@ const PaxosSetting = ({ className, faultMode }) => {
     })
   }
 
+  const failure5 = () => {
+    for (let i = 0; i < 5; i++) {
+      handleAddServer();
+    }
+    setPaxosState((prevState) => {
+      return {
+        ...prevState,
+        scenario: 'failure5'
+      }
+    })
+  }
+
   const handleFailure5 = () => {
     const interval = setInterval(async () => {
       setPaxosState((prevState) => {
@@ -212,6 +224,9 @@ const PaxosSetting = ({ className, faultMode }) => {
     <div className={`paxos-setting-container ${className}`} >
       {faultMode ?
         <>
+          <Button
+            type='primary'
+            onClick={failure5}>Same Proposal Number</Button>
           <Button
             type='primary'
             onClick={failure1}>Same Proposal Number</Button>
