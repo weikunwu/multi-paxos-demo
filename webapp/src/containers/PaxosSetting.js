@@ -197,6 +197,7 @@ const PaxosSetting = ({ className, faultMode }) => {
         const theta = angle * (i + 1); // New angle for all nodes
         server.x = offset + circleRadius * Math.cos(theta) - 10;
         server.y = offset + circleRadius * Math.sin(theta) - 10;
+        server.numOfServers = totalServers
       });
 
       // Return the updated state
