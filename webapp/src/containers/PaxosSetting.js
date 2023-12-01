@@ -22,6 +22,59 @@ const PaxosSetting = ({ className, faultMode }) => {
 function timeout(delay) {
   return new Promise(res => setTimeout(res, delay));
 }
+const failure1 = async () => {
+  handleStartButton();
+
+  const newServers = [];
+  for (let i = 0; i < 5; i++) {
+    newServers.push(new Server(`${i + 1}`));
+  }
+
+  const circleRadius = 200; 
+  const offset = 200; 
+  const totalServers = newServers.length;
+  const angle = 2 * Math.PI / totalServers;
+
+  newServers.forEach((server, i) => {
+    const theta = angle * (i + 1); 
+    server.x = offset + circleRadius * Math.cos(theta) - 10;
+    server.y = offset + circleRadius * Math.sin(theta) - 10;
+  });
+
+  await setPaxosState((prevState) => ({
+    ...prevState,
+    servers: newServers
+  }));
+
+  await timeout(0);
+
+  setPaxosState((prevState) => {
+    const updatedServers = prevState.servers;
+    const newPackets = [
+      ...prevState.packets,
+      ...updatedServers[0].broadcastPrepare(['2', '3'], 20),
+    ];
+
+    return {
+      ...prevState,
+      packets: newPackets
+    };
+  });
+
+  await timeout(4900);
+
+  setPaxosState((prevState) => {
+    const updatedServers = prevState.servers;
+    const additionalPackets = [
+      ...updatedServers[4].broadcastPrepare(['1', '3'], 10),
+    ];
+
+    return {
+      ...prevState,
+      packets: [...prevState.packets, ...additionalPackets]
+    };
+  });
+};
 
 const failure6 = async () => {
   handleStartButton();
@@ -62,7 +115,7 @@ const failure6 = async () => {
     };
   });
 
-  await timeout(1000);
+  await timeout(4900);
 
   setPaxosState((prevState) => {
     const updatedServers = prevState.servers;
@@ -122,14 +175,26 @@ const failure6 = async () => {
   return (
     <div className={`paxos-setting-container ${className}`} >
       {
-        faultMode &&
-        <Button
-          className='add-button'
-          type='primary'
-          onClick={failure6}
-        >
-          Failure 6
-        </Button>
+        faultMode && (
+          <Button
+            className='add-button'
+            type='primary'
+            onClick={failure1} // Assuming you have a function for Failure 1
+          >
+            Failure 1
+          </Button>
+        )
+      }
+      {
+        faultMode && (
+          <Button
+            className='add-button'
+            type='primary'
+            onClick={failure6}
+          >
+            Failure 6
+          </Button>
+        )
       }
 
       {
