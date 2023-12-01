@@ -2,7 +2,7 @@
 // and Re-execute with the Same Proposal Number but Different Value
 import { Packet } from './Packet';
 
-class Server {
+class Server7 {
   constructor(name) {
     this.id = name; // server name
     this.down = false; // whether server is down
@@ -167,15 +167,14 @@ class Server {
 
   simulateCrashAndRestart(servers, delay = 5000) {
     this.simulateCrash();
-    setTimeout(() => this.restartProtocol(servers, this.generateNewValue()), delay);
+    setTimeout(() => {
+      const newValue = this.generateNewValue();
+      this.broadcastPrepare(servers, newValue);
+    }, delay);
   }
-
-  // simulate a server crash
+  
   simulateCrash() {
-    this.down = true; // Mark the server as down
     // Reset state variables except for proposalNum
-    this.x = null;
-    this.y = null;
     this.acceptedValue = null;
     this.acceptedProp = null;
     this.prepareAcks = 0;
@@ -184,19 +183,7 @@ class Server {
     this.minAcceptedValue = null;
     // Do not reset this.proposalNum and this.minProposal to retain the proposal number
   }
-
-  // restart the protocol after a crash
-  restartProtocol(otherServers, newValue) {
-    if (this.down) {
-      this.down = false; 
-      this.proposalValue = newValue; 
-      this.prepareAcks = 0;
-      this.acceptAcks = 0;
-      return this.broadcastPrepare(otherServers, newValue);
-    }
-    return []; 
-  }
-
+  
   generateNewValue() {
     return parseInt(this.proposalValue, 10) + 1;
   }
@@ -219,4 +206,4 @@ class Server {
 
 };
 
-export { Server };
+export { Server7 };

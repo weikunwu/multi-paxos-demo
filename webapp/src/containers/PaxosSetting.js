@@ -11,12 +11,24 @@ import {
 } from 'react-icons/gi';
 import styled from 'styled-components';
 
-import { Server } from '../objects/Server';
+import { Server } from '../objects/Server7';
+import { Server6 } from '../objects/Server6';
 import { PaxosContext } from '../PaxosContext';
 import LabelIconSlider from './LabelIconSlider';
 
 const PaxosSetting = ({ className }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
+
+  const failure6 = () => {
+    const newServers = paxosState.servers.map((server, index) => {
+      return new Server6(`${index + 1}`);
+    });
+  
+    setPaxosState({
+      ...paxosState,
+      servers: newServers,
+    });
+  };
 
   const handleStartButton = () => {
     const cur = paxosState.on;
@@ -89,6 +101,10 @@ const PaxosSetting = ({ className }) => {
         step={10}
         handleChange={handleDropRateChange}
       />
+      <Button
+        className='add-button'
+        type='primary'
+        onClick={failure6}>Failure 6</Button>
     </div>
   )
 }

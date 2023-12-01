@@ -1,7 +1,6 @@
-// When the server accepts the packet, don't update the minProposal
 import { Packet } from './Packet';
 
-class Server {
+class Server6 {
   constructor(name) {
     this.id = name; // server name
     this.down = false; // whether server is down
@@ -89,9 +88,8 @@ class Server {
     const packetOut = new Packet(this.id, packetIn.from);
     packetOut.type = 'ACK_ACCEPT';
     if (proposalNum >= this.minProposal) {
-      // FAULT Don't Update server min proposal num
-      // this.minProposal = proposalNum;
-
+      // Update server min proposal num
+      this.minProposal = proposalNum;
       // Update server accepted proposal num
       this.acceptedProp = proposalNum;
       // Update server accepted value
@@ -178,4 +176,4 @@ class Server {
   }
 };
 
-export { Server };
+export { Server6 };
