@@ -90,8 +90,6 @@ class Server6 {
     const packetOut = new Packet(this.id, packetIn.from);
     packetOut.type = 'ACK_ACCEPT';
     if (proposalNum >= this.minProposal) {
-      // Update server min proposal num
-      this.minProposal = proposalNum;
       // Update server accepted proposal num
       this.acceptedProp = proposalNum;
       // Update server accepted value
@@ -131,7 +129,6 @@ class Server6 {
         this.minAcceptedValue = packet.acceptedValue;
       }
     }
-
 
     if (this.prepareAcks > (otherServers.length + 1) / 2) {
       const packets = this.broadcastAccept(otherServers, packet.proposalNum, this.minAcceptedValue || this.proposalValue);
