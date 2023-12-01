@@ -1,6 +1,9 @@
 import React from 'react';
 
-import { Typography } from 'antd';
+import {
+  Divider,
+  Typography,
+} from 'antd';
 
 import Paxos from './components/Paxos';
 
@@ -14,7 +17,7 @@ const App = () => {
         <Title>
           Paxos Demo
         </Title>
-        {/* <Divider /> */}
+        <Divider />
         <Paxos />
       </div>
     </div>
