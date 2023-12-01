@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 
 import { Button } from 'antd';
 import {
+  AiFillSwitcher,
   AiOutlineCheck,
   AiOutlineClose,
 } from 'react-icons/ai';
@@ -34,24 +35,35 @@ const PaxosSetting = ({ className }) => {
     })
   }
 
-  const failure5 = () => {
-    for (let i = 0; i < 2; i++) {
-      handleAddServer();
-    }
+  function timeout(delay) {
+    return new Promise(res => setTimeout(res, delay));
+  }
+  const failure5 = async () => {
     handleStartButton()
-    // Hard code packets
-    const receivers = [paxosState.servers[2], paxosState.servers[2]];
-    const proposer = paxosState.servers[0];
-    setPaxosState((prevState) => {
-      const newPackets = [
-        ...prevState.packets,
-        ...proposer.broadcastPrepare(receivers, 1)
-      ];
-      return {
-        ...prevState,
-        packets: newPackets
-      }
-    })
+    const interval = setInterval(async () => {
+      setPaxosState((prevState) => {
+        const newPackets = [
+          ...prevState.packets,
+          ...paxosState.servers[0].broadcastPrepare(['3', '4'], 1)
+        ];
+        console.log(newPackets);
+        return {
+          ...prevState,
+          packets: newPackets
+        }
+      })
+      await timeout(3000);
+      setPaxosState((prevState) => {
+        const newPackets = [
+          ...prevState.packets,
+          ...paxosState.servers[1].broadcastPrepare(['3', '4'], 1)
+        ];
+        return {
+          ...prevState,
+          packets: newPackets
+        }
+      })
+    }, 5000);
   }
 
   const handleDropRateChange = (dropRate) => {
@@ -66,7 +78,7 @@ const PaxosSetting = ({ className }) => {
       const newServers = [...prevState.servers];
 
       // Create a new unique identifier for the new server
-      const newServerId = `Server-${newServers.length + 1}`;
+      const newServerId = `${newServers.length + 1}`;
 
       // Create a new Server instance with the unique identifier
       const newServer = new Server(newServerId);
