@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { Button } from 'antd';
 import {
@@ -18,12 +18,14 @@ import LabelIconSlider from './LabelIconSlider';
 
 const PaxosSetting = ({ className, faultMode }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
+  const [showFailure6Text, setShowFailure6Text] = useState(false);
 
   function timeout(delay) {
     return new Promise(res => setTimeout(res, delay));
   }
 
   const failure6 = async () => {
+    setShowFailure6Text(true);
     setPaxosState((prevState) => {
       return {
         ...prevState,
@@ -218,6 +220,17 @@ const PaxosSetting = ({ className, faultMode }) => {
           <Button
             type='primary'
             onClick={failure6}>Not Updating MinProposal</Button>
+          {showFailure6Text && (
+            <div className="failure6-instructions">
+              <p>To simulate how not updating minProposal during accept phase can cause safety violation, you can follow these steps after clicking the "Start" button:</p>
+              <ol>
+                <li>From S2, Drop packets where its type is "ACCEPT" that is being sent to S1, S3, S5.</li>
+                <li>From S5, Drop packets where its type is "ACCEPT" that is being sent to S2 and S3.</li>
+                <li>From S3, Propose with new value but drop the packet where its type is "PREPARE" that is being sent to S1 and S5.</li>
+              </ol>
+              <p>After this, you can see how all the servers finally accepted value is 20 which is the first proposal that was sent from S2 with the smallest proposal number which violates Paxos safety rule.</p>
+            </div>
+          )}
         </>
         :
         <Button
