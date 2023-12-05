@@ -18,14 +18,14 @@ import LabelIconSlider from './LabelIconSlider';
 
 const PaxosSetting = ({ className, faultMode }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
-  const [showFailure6Text, setShowFailure6Text] = useState(false);
+  const [lastClickedFailure, setLastClickedFailure] = useState(null);
 
   function timeout(delay) {
     return new Promise(res => setTimeout(res, delay));
   }
 
   const failure6 = async () => {
-    setShowFailure6Text(true);
+    setLastClickedFailure('failure6');
     setPaxosState((prevState) => {
       return {
         ...prevState,
@@ -138,6 +138,7 @@ const PaxosSetting = ({ className, faultMode }) => {
   }
 
   const failure1 = () => {
+    setLastClickedFailure('failure1');
     setPaxosState((prevState) => {
       return {
         ...prevState,
@@ -220,7 +221,7 @@ const PaxosSetting = ({ className, faultMode }) => {
           <Button
             type='primary'
             onClick={failure6}>Not Updating MinProposal</Button>
-          {showFailure6Text && (
+          {lastClickedFailure === 'failure6' && (
             <div className="failure6-instructions">
               <p>To simulate how not updating minProposal during accept phase can cause safety violation, you can follow these steps after clicking the "Start" button:</p>
               <ol>
