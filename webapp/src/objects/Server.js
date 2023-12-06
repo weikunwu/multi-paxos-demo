@@ -173,6 +173,7 @@ class Server {
     this.acceptAcks += 1;
     if (this.acceptAcks > this.numOfServers / 2) {
       this.acceptAcks = 0;
+      this.learnedValue = this.acceptedValue;
       return []; // No need to return packets if a value is accepted by a majority
     }
     return []; // Return an empty array if the condition is not met

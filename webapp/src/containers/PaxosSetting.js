@@ -16,8 +16,30 @@ import { Server6 } from '../objects/Server6';
 import { PaxosContext } from '../PaxosContext';
 import LabelIconSlider from './LabelIconSlider';
 
-const PaxosSetting = ({ className, faultMode }) => {
+const placeInCircle = (servers) => {
+  const newServers = [...servers];
+
+  // Calculate position for the new server
+  const circleRadius = 150; // Radius of the circle
+  const offset = 150; // Center offset for the node
+  const totalServers = newServers.length;
+  const angle = 2 * Math.PI / totalServers; // Angle for positioning servers
+
+  // Position the new server and update positions for existing servers
+  newServers.forEach((server, i) => {
+    const theta = angle * (i + 1);
+    server.x = offset + circleRadius * Math.cos(theta) - 10;
+    server.y = offset + circleRadius * Math.sin(theta) - 10;
+    server.numOfServers = totalServers;
+  });
+
+  return newServers;
+};
+
+const PaxosSetting = ({ className }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
+
+  const faultMode = paxosState.tab === "fault"
 
   function timeout(delay) {
     return new Promise(res => setTimeout(res, delay));
@@ -32,22 +54,12 @@ const PaxosSetting = ({ className, faultMode }) => {
       }
     })
 
-    const newServers = [];
+    let newServers = [];
     for (let i = 0; i < 5; i++) {
       newServers.push(new Server6(`${i + 1}`));
     }
 
-    const circleRadius = 200;
-    const offset = 200;
-    const totalServers = newServers.length;
-    const angle = 2 * Math.PI / totalServers;
-
-    newServers.forEach((server, i) => {
-      const theta = angle * (i + 1);
-      server.x = offset + circleRadius * Math.cos(theta) - 10;
-      server.y = offset + circleRadius * Math.sin(theta) - 10;
-      server.numOfServers = totalServers;
-    });
+    newServers = placeInCircle(newServers);
 
     await setPaxosState((prevState) => ({
       ...prevState,
@@ -143,21 +155,12 @@ const PaxosSetting = ({ className, faultMode }) => {
         packets: []
       }
     })
-    const circleRadius = 200;
-    const offset = 200;
     const totalServers = 4;
-    const angle = 2 * Math.PI / totalServers;
-
-    const newServers = new Array(totalServers).fill(null).map((_, i) => {
+    let newServers = new Array(totalServers).fill(null).map((_, i) => {
       return new Server(`${i + 1}`);
     });
 
-    newServers.forEach((server, i) => {
-      const theta = angle * (i + 1);
-      server.x = offset + circleRadius * Math.cos(theta) - 10;
-      server.y = offset + circleRadius * Math.sin(theta) - 10;
-      server.numOfServers = totalServers;
-    });
+    newServers = placeInCircle(newServers);
 
     setPaxosState((prevState) => {
       const newPackets = [
@@ -177,7 +180,7 @@ const PaxosSetting = ({ className, faultMode }) => {
   const handleAddServer = () => {
     setPaxosState(prevState => {
       // Clone the current array of servers
-      const newServers = [...prevState.servers];
+      let newServers = [...prevState.servers];
 
       // Create a new unique identifier for the new server
       const newServerId = `${newServers.length + 1}`;
@@ -185,20 +188,9 @@ const PaxosSetting = ({ className, faultMode }) => {
       // Create a new Server instance with the unique identifier
       const newServer = new Server(newServerId);
 
-      // Calculate position for the new server
-      const circleRadius = 200; // Radius of the circle
-      const offset = 200; // Center offset for the node
-      const totalServers = newServers.length + 1; // Include the new server in count
-      const angle = 2 * Math.PI / totalServers; // Angle for positioning servers
-
-      // Position the new server and update positions for existing servers
       newServers.push(newServer);
-      newServers.forEach((server, i) => {
-        const theta = angle * (i + 1); // New angle for all nodes
-        server.x = offset + circleRadius * Math.cos(theta) - 10;
-        server.y = offset + circleRadius * Math.sin(theta) - 10;
-        server.numOfServers = totalServers
-      });
+
+      newServers = placeInCircle(newServers);
 
       // Return the updated state
       return {
@@ -224,7 +216,7 @@ const PaxosSetting = ({ className, faultMode }) => {
           className='add-button'
           type='primary'
           disabled={
-            paxosState.servers.length >= 10 || paxosState.on || paxosState.packets.length > 0
+            paxosState.servers.length >= 6 || paxosState.on || paxosState.packets.length > 0
           } onClick={handleAddServer}>Add Node</Button>
       }
       <Button

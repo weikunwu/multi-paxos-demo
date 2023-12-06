@@ -13,7 +13,8 @@ const PaxosProvider = ({ children }) => {
     tab: 'playground',
     scenario: 'fault1',
     servers: [], // A list of server objects
-    packets: [] // A list of packets objects
+    packets: [], // A list of packets objects
+    popoverClosed: {} // key is server id, value is whether the value decided popover is closed
   })
 
   return (
