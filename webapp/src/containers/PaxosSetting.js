@@ -12,7 +12,9 @@ import {
 import styled from 'styled-components';
 
 import { Server } from '../objects/Server';
-import { Server6 } from '../objects/Server6';
+import {
+  ServerAckAcceptNotUpdateMinProp,
+} from '../objects/ServerAckAcceptNotUpdateMinProp';
 import { PaxosContext } from '../PaxosContext';
 import LabelIconSlider from './LabelIconSlider';
 
@@ -56,7 +58,7 @@ const PaxosSetting = ({ className }) => {
 
     let newServers = [];
     for (let i = 0; i < 5; i++) {
-      newServers.push(new Server6(`${i + 1}`));
+      newServers.push(new ServerAckAcceptNotUpdateMinProp(`${i + 1}`));
     }
 
     newServers = placeInCircle(newServers);
