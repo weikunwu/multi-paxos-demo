@@ -85,7 +85,7 @@ class Server6 {
   }
 
   ackAccept(packetIn) {
-    debugger;
+    // debugger;
     const proposalNum = packetIn.proposalNum;
     const proposalValue = packetIn.value;
     const packetOut = new Packet(this.id, packetIn.from);
@@ -155,8 +155,10 @@ class Server6 {
 
     this.acceptAcks += 1;
     if (this.acceptAcks > (otherServers.length + 1) / 2) {
+      const notificationElement = document.getElementById('notification');
+      notificationElement.innerHTML += `Server ${this.id} has achieved majority acceptance for proposal ${proposalNum}<br>`;
       this.acceptAcks = 0;
-      return []; // No need to return packets if a value is accepted by a majority
+      return [];
     }
     return []; // Return an empty array if the condition is not met
   }
