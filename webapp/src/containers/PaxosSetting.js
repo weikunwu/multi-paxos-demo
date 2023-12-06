@@ -212,34 +212,39 @@ const PaxosSetting = ({ className, faultMode }) => {
   };
 
   return (
-    <div className={`paxos-setting-container ${className}`} >
+    <div className={`paxos-setting-container ${className}`}>
       {faultMode ?
         <>
-          <Button
-            type='primary'
-            onClick={failure1}>Same Proposal Number</Button>
-          <Button
-            type='primary'
-            onClick={failure6}>Not Updating MinProposal</Button>
-          {lastClickedFailure === 'failure6' && (
-            <div className="failure6-instructions">
-              <p>To simulate how not updating minProposal during accept phase can cause safety violation, you can follow these steps after clicking the "Start" button:</p>
-              <ol>
-                <li>From S2, Drop packets where its type is "ACCEPT" that is being sent to S1, S3, S5.</li>
-                <li>From S5, Drop packets where its type is "ACCEPT" that is being sent to S2 and S3.</li>
-                <li>From S3, Propose with new value but drop the packet where its type is "PREPARE" that is being sent to S1 and S5.</li>
-              </ol>
-              <p>After this, you can see how all the servers finally accepted value is 20 which is the first proposal that was sent from S2 with the smallest proposal number which violates Paxos safety rule.</p>
-            </div>
-          )}
+          <Button type='primary' onClick={failure1}>Same Proposal Number</Button>
+          <Button type='primary' onClick={failure6}>Not Updating MinProposal</Button>
         </>
         :
-        <Button
-          className='add-button'
-          type='primary'
-          disabled={
-            paxosState.servers.length >= 10 || paxosState.on || paxosState.packets.length > 0
-          } onClick={handleAddServer}>Add Node</Button>
+        <>
+          <Button
+            className='add-button'
+            type='primary'
+            disabled={paxosState.servers.length >= 10 || paxosState.on || paxosState.packets.length > 0}
+            onClick={handleAddServer}>Add Node</Button>
+  
+          <LabelIconSlider
+            leftIcon={<GiTurtleShell />}
+            rightIcon={<GiRabbit />}
+            label='Speed'
+            min={1}
+            max={5}
+            handleChange={handleSpeedChange}
+          />
+  
+          <LabelIconSlider
+            leftIcon={<AiOutlineCheck />}
+            rightIcon={<AiOutlineClose />}
+            label='Message Drop Rate'
+            min={0}
+            max={100}
+            step={10}
+            handleChange={handleDropRateChange}
+          />
+        </>
       }
       <Button
         className='start-button'
@@ -250,27 +255,20 @@ const PaxosSetting = ({ className, faultMode }) => {
           handleStartButton();
         }}
       >{paxosState.on ? 'Pause' : 'Start'}</Button>
-      <LabelIconSlider
-        leftIcon={<GiTurtleShell />}
-        rightIcon={<GiRabbit />}
-        label='Speed'
-        min={1}
-        max={5}
-        handleChange={handleSpeedChange}
-      />
-      {
-        !faultMode &&
-        <LabelIconSlider
-          leftIcon={<AiOutlineCheck />}
-          rightIcon={<AiOutlineClose />}
-          label='Message Drop Rate'
-          min={0}
-          max={(100)}
-          step={10}
-          handleChange={handleDropRateChange}
-        />
-      }
-    </div >
+      {lastClickedFailure === 'failure6' && (
+        <div className="failure6-instructions">
+          <h3>Instruction</h3>
+          <p>To simulate how not updating minProposal during accept phase can cause safety violation, you can follow these steps after clicking the "Start" button:</p>
+          <ol>
+            <li>From S2, Drop packets where its type is "ACCEPT" that is being sent to S1, S3, S5.</li>
+            <li>From S5, Drop packets where its type is "ACCEPT" that is being sent to S2 and S3.</li>
+            <li>From S3, Propose with new value but drop the packet where its type is "PREPARE" that is being sent to S1 and S5.</li>
+          </ol>
+          <p>After this, you can see how all the servers finally accepted value is 20 which is the first proposal that was sent from S2 with the smallest proposal number which violates Paxos safety rule.</p>
+          <div id="notification"></div>
+        </div>
+      )}      
+    </div>
   )
 }
 
