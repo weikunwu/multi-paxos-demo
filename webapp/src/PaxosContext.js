@@ -13,7 +13,7 @@ const PaxosProvider = ({ children }) => {
     tab: 'playground',
     scenario: 'fault1',
     servers: [], // A list of server objects
-    packets: [] // A list of packets objects
+    packets: [], // A list of packets objects
   })
 
   return (

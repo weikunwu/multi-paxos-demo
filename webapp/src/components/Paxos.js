@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 import PaxosDisplay from '../containers/PaxoDisplay';
 import PaxosSetting from '../containers/PaxosSetting';
+import ServerTable from '../containers/ServerTable';
 import { PaxosContext } from '../PaxosContext';
 
 const Paxos = ({ className }) => {
@@ -41,10 +42,13 @@ const Paxos = ({ className }) => {
             label: labels[key],
             key: key,
             children: (
-              <div className="paxos">
-                <PaxosDisplay />
-                <PaxosSetting faultMode={paxosState.tab === "fault"} />
-              </div>
+              <>
+                <div className="paxos">
+                  <PaxosDisplay />
+                  <PaxosSetting />
+                </div>
+                <ServerTable />
+              </>
             ),
           };
         })}
