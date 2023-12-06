@@ -1,4 +1,7 @@
-import React, { useContext } from 'react';
+import React, {
+  useContext,
+  useState,
+} from 'react';
 
 import {
   Button,
@@ -12,27 +15,13 @@ import { PaxosContext } from '../PaxosContext';
 
 const Server = ({ className, id }) => {
   const [paxosState, setPaxosState] = useContext(PaxosContext);
+  const [popoverOpen, setPopoverOpen] = useState(true);
   const server = paxosState.servers.find(s => s.id === id);
 
-  const handlePopover = () => {
-    if (!server.learnedValue) {
-      return;
-    }
-    setPaxosState((prevState) => {
-      const newState = !prevState.popoverClosed[id];
-      return {
-        ...prevState,
-        popoverClosed: {
-          ...prevState.popoverClosed,
-          [id]: newState
-        }
-      }
-    })
-  };
   return (
     <div className={`server-container ${className}`}>
       <Popover
-        open={server.learnedValue && !paxosState.popoverClosed[server.id]}
+        open={server.learnedValue && popoverOpen}
         trigger={[]}
         content={
           <>
@@ -42,7 +31,7 @@ const Server = ({ className, id }) => {
               size="small"
               type="text"
               onClick={() => {
-                handlePopover();
+                setPopoverOpen(false);
               }}
             >
               <IoClose />
@@ -55,7 +44,9 @@ const Server = ({ className, id }) => {
           size='large'
           shape="circle"
           onClick={() => {
-            handlePopover();
+            if (server.learnedValue) {
+              setPopoverOpen(!popoverOpen);
+            }
           }}
           style={{
             left: `${server.x || 200}px`,
