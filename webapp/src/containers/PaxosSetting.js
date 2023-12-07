@@ -106,6 +106,15 @@ const PaxosSetting = ({ className }) => {
     })
   }
 
+  const handleReset = () => {
+    setPaxosState({
+      ...paxosState,
+      servers: [],
+      packets: [],
+      on: false,
+    })
+  }
+
   const handleSpeedChange = (speed) => {
     setPaxosState({
       ...paxosState,
@@ -205,31 +214,36 @@ const PaxosSetting = ({ className }) => {
   return (
     <div className={`paxos-setting-container ${className}`} >
       {faultMode ?
-        <>
+        <div className="button-group">
           <Button
             type='primary'
             onClick={failure1}>Same Proposal Number</Button>
           <Button
             type='primary'
             onClick={failure6}>Not Updating MinProposal</Button>
-        </>
+        </div>
         :
-        <Button
-          className='add-button'
-          type='primary'
-          disabled={
-            paxosState.servers.length >= 6 || paxosState.on || paxosState.packets.length > 0
-          } onClick={handleAddServer}>Add Node</Button>
+        <div className="button-group">
+          <Button
+            className='add-button'
+            type='primary'
+            disabled={
+              paxosState.servers.length >= 6 || paxosState.on || paxosState.packets.length > 0
+            } onClick={handleAddServer}>Add Node</Button>
+        </div>
       }
-      <Button
-        className='start-button'
-        onClick={() => {
-          if (paxosState.scenario === "failure5") {
-            handleFailure5();
-          }
-          handleStartButton();
-        }}
-      >{paxosState.on ? 'Pause' : 'Start'}</Button>
+      <div className="button-group">
+        <Button
+          className='start-button'
+          onClick={() => {
+            if (paxosState.scenario === "failure5") {
+              handleFailure5();
+            }
+            handleStartButton();
+          }}
+        >{paxosState.on ? 'Pause' : 'Start'}</Button>
+        {!faultMode && <Button onClick={handleReset}>Reset</Button>}
+      </div>
       <LabelIconSlider
         leftIcon={<GiTurtleShell />}
         rightIcon={<GiRabbit />}
@@ -259,6 +273,13 @@ export default styled(PaxosSetting)`
   #mode-setting {
     display: flex;
     flex-direction: column;
+  }
+
+  .button-group {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
   }
 
   button {
