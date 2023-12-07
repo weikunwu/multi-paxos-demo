@@ -18,6 +18,7 @@ import {
   PACKET_SIZE,
   SERVER_SIZE,
 } from '../Constants';
+import { Packet as PacketClass } from '../objects/Packet';
 import { PaxosContext } from '../PaxosContext';
 import PacketTooltip from './PacketTooltip';
 
@@ -39,8 +40,8 @@ const Packet = ({ className, packet }) => {
 
   const [spring, api] = useSpring(() => ({
     from: { x: from.x + offset, y: from.y + offset },
-    to: { x: to.x + offset, y: to.y + offset },
-    config: { duration: Math.sqrt((from.x - to.x) ** 2 + (from.y - to.y) ** 2) / paxosState.speed * 20 },
+    to: { x: (!packet.drop ? to.x : (to.x + from.x) / 2) + offset, y: (!packet.drop ? to.y : (to.y + from.y) / 2) + offset },
+    config: { duration: (packet.drop ? 0.5 : 1) * Math.sqrt((from.x - to.x) ** 2 + (from.y - to.y) ** 2) / paxosState.speed * 20 },
     onRest: () => {
 
       setPaxosState((prevState) => {
@@ -66,7 +67,7 @@ const Packet = ({ className, packet }) => {
         const otherServers = prevState.servers.filter(s => s.id !== curPacket.to).map(s => s.id);
         const packets = [
           ...newPackets,
-          ...receiver.receivePacket(otherServers, curPacket)
+          ...PacketClass.filterDrop(receiver.receivePacket(otherServers, curPacket), prevState.dropRate)
         ];
 
         const servers = prevState.servers.map(s => {

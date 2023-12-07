@@ -116,16 +116,20 @@ const PaxosSetting = ({ className }) => {
   }
 
   const handleSpeedChange = (speed) => {
-    setPaxosState({
-      ...paxosState,
-      speed: speed
+    setPaxosState(prevState => {
+      return {
+        ...prevState,
+        speed: speed
+      }
     })
   }
 
   const handleDropRateChange = (dropRate) => {
-    setPaxosState({
-      ...paxosState,
-      dropRate: 0.01 * dropRate
+    setPaxosState(prevState => {
+      return {
+        ...prevState,
+        dropRate: 0.01 * dropRate
+      }
     })
   }
 
@@ -250,6 +254,7 @@ const PaxosSetting = ({ className }) => {
         label='Speed'
         min={1}
         max={5}
+        value={paxosState.speed}
         handleChange={handleSpeedChange}
       />
       {
@@ -261,6 +266,7 @@ const PaxosSetting = ({ className }) => {
           min={0}
           max={(100)}
           step={10}
+          value={paxosState.dropRate * 100}
           handleChange={handleDropRateChange}
         />
       }

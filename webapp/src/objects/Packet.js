@@ -21,6 +21,17 @@ class Packet {
 
     this.minProposal = null;
   }
+
+  static filterDrop(packets, dropRate) {
+    const newPackets = packets.map(p => {
+      const newPacket = {
+        ...p,
+        drop: Math.random() < dropRate
+      }
+      return newPacket;
+    });
+    return newPackets;
+  }
 };
 
 export { Packet };

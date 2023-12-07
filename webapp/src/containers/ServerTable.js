@@ -8,6 +8,7 @@ import {
 } from 'antd';
 import styled from 'styled-components';
 
+import { Packet } from '../objects/Packet';
 import { PaxosContext } from '../PaxosContext';
 import ProposePopover from './ProposePopover';
 
@@ -19,10 +20,11 @@ const ServerTable = ({ className }) => {
     const proposer = paxosState.servers.find(s => s.id === id);
 
     setPaxosState((prevState) => {
+      const packets = proposer.broadcastPrepare(receivers, val)
       const newPackets = [
         ...prevState.packets,
-        ...proposer.broadcastPrepare(receivers, val)
-      ];
+        ...Packet.filterDrop(packets, paxosState.dropRate),
+      ]
 
       const newServers = prevState.servers.map((s) => {
         if (s.id === id) {
@@ -34,7 +36,6 @@ const ServerTable = ({ className }) => {
 
       return {
         ...prevState,
-        popoverId: "",
         servers: newServers,
         packets: newPackets
       }

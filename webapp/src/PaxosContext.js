@@ -8,7 +8,7 @@ const PaxosContext = createContext();
 const PaxosProvider = ({ children }) => {
   const [paxosState, setPaxosState] = useState({
     on: false, // Determine whether simulation is on or paused
-    speed: 1, // Speed must be between 1 - 5, which determine the speed of simulation
+    speed: 2, // Speed must be between 1 - 5, which determine the speed of simulation
     dropRate: 0, // Possibility that a message is dropped
     tab: 'playground',
     scenario: 'fault1',
