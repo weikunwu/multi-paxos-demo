@@ -23,6 +23,7 @@ const Paxos = ({ className }) => {
       ...paxosState,
       on: false,
       tab: activeTab,
+      dropRate: activeTab === "playground" ? 0.1 : 0,
       scenario: 'fault1',
       servers: [],
       packets: []
