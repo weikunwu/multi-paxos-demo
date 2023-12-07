@@ -10,6 +10,7 @@ const LabelIconSlider = ({
   min,
   max,
   step,
+  value,
   handleChange,
   className
 }) => {
@@ -24,6 +25,7 @@ const LabelIconSlider = ({
           min={min}
           max={max}
           step={step}
+          value={value}
           onChange={(value) => {
             handleChange(value);
           }} />

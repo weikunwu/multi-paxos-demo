@@ -26,6 +26,7 @@ const PaxosDisplay = ({ className }) => {
 export default styled(PaxosDisplay)`
   display: flex;
   justify-content: center;
+  margin: 10px 0 100px, 0;
   .server-circle-container {
     position: relative;
     width: 400px;
