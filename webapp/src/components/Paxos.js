@@ -12,7 +12,8 @@ const Paxos = ({ className }) => {
 
   const [paxosState, setPaxosState] = useContext(PaxosContext);
 
-  const modes = ["playground", "fault"];
+  // const modes = ["playground", "fault"];
+  const modes = ["playground"];
   const labels = {
     playground: "Playground",
     fault: "Fault Scenarios"
